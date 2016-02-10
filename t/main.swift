@@ -43,9 +43,9 @@ class ReminderCache {
     
     func loadItems() {
         var fetched: Bool = false
-        let cals = eventStore.calendarsForEntityType(EKEntityType.Reminder)
+        let cal = self.eventStore.defaultCalendarForNewReminders()
         
-        let predicate = self.eventStore.predicateForRemindersInCalendars(cals)
+        let predicate = self.eventStore.predicateForRemindersInCalendars([cal])
         
         self.eventStore.fetchRemindersMatchingPredicate(predicate) { foundReminders in
             
