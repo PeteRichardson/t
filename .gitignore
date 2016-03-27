@@ -1,4 +1,6 @@
 .DS_Store
+t.xcodeproj/xcuserdata/
+t.xcodeproj/project.xcworkspace/
 .xcodeproj/ !*.xcodeproj/project.pbxproj
 *.swp
 *~.nib
@@ -6,3 +8,5 @@ DerivedData/
 # NB: slash on the end, so we only remove the FOLDER, not any files that were badly named "build"
 build
 *.pbxuser
+Builds/
+
