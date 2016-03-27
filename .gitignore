@@ -9,4 +9,4 @@ DerivedData/
 build
 *.pbxuser
 Builds/
-
+.build/
