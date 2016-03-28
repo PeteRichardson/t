@@ -9,19 +9,19 @@ do {
     args.removeAtIndex(0)
     if args.count > 0 {
         switch (args[0]).lowercaseString {
-	        case "c", "-c":
+	        case "c":
 	            args.removeAtIndex(0)
 	            try remCache.complete_reminder(args)
-	        case "d", "-d":
+	        case "d":
 	            args.removeAtIndex(0)
 	            try remCache.delete_reminder(args)
-	        case "h", "ui":
+	        case "ui":
 	            args.removeAtIndex(0)
 	            remCache.add_reminder(args, priority: 1)
-	        case "m", "nui":
+	        case "nui":
 	            args.removeAtIndex(0)
 	            remCache.add_reminder(args, priority: 5)
-	        case "l", "uni":
+	        case "uni":
 	            args.removeAtIndex(0)
 	            remCache.add_reminder(args, priority: 9)
 	        case "nuni":
