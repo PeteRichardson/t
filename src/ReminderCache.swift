@@ -9,8 +9,16 @@ class ReminderCache {
     var reminders: [EKReminder]!
     
     var eventStore: EKEventStore
-    init(eventStore : EKEventStore) {
-        self.eventStore = eventStore
+
+    init() {
+	    self.eventStore = EKEventStore()
+	    eventStore.requestAccessToEntityType(EKEntityType.Reminder, completion: {
+	        (granted, error) in
+	        if (granted) && (error == nil) {
+	            //print("Access granted!")
+	        }
+	    })
+    
         self.reminders = [EKReminder]()
         self.loadItems()
     }

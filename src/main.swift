@@ -1,15 +1,9 @@
 import EventKit
 
 do {
-    var eventStore : EKEventStore = EKEventStore()
-    eventStore.requestAccessToEntityType(EKEntityType.Reminder, completion: {
-        (granted, error) in
-        if (granted) && (error == nil) {
-            //print("Access granted!")
-        }
-    })
+
     
-    var remCache = ReminderCache(eventStore: eventStore)
+    var remCache = ReminderCache()
     
     var args = Process.arguments
     args.removeAtIndex(0)
