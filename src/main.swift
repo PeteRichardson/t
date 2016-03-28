@@ -21,6 +21,9 @@ do {
 	        case "nui":
 	            args.removeAtIndex(0)
 	            remCache.add_reminder(args, priority: 5)
+	        case "m":
+	            args.removeAtIndex(0)
+	            remCache.move_reminder(args)
 	        case "uni":
 	            args.removeAtIndex(0)
 	            remCache.add_reminder(args, priority: 9)
