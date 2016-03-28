@@ -167,20 +167,7 @@ class ReminderCache {
             }
         }
     }
-    
-    func list_reminders(reminderlist: [String: EKReminder]) {
-        if reminderlist.count > 0 {
-            let sortedReminders = reminderlist.values.sort() { (r1, r2) in
-                return r2.completed
-            }
-            for reminder in sortedReminders as [EKReminder] {
-                if (!reminder.completed) || (reminder.completedToday) {
-                    print(reminder)
-                }
-            }
-        }
-    }
-    
+
     func list_reminders_side_by_side(list1: [String: EKReminder], list2: [String: EKReminder], width1: Int, width2: Int) {
         var rows = list1.count
         if list2.count > list1.count {
@@ -206,34 +193,5 @@ class ReminderCache {
             right = right.substringToIndex(right.startIndex.advancedBy(width1))
             print("| \(left) | \(right) |")
         }
-    }
-    
-    func list_reminders2() {
-        var width_urgent : Int = 0
-        var width_noturgent : Int = 0
-        var length_important : Int = 0
-        var length_notimportant : Int = 0
-        for reminder in self.uiItems.values {
-            if reminder.priority <= 5 {
-                length_important += 1
-            } else {
-                length_notimportant += 1
-            }
-            if ((reminder.priority == 1) || (reminder.priority == 9)) {
-                if (reminder.description.characters.count > width_urgent) {
-                    width_urgent = reminder.description.characters.count
-                }
-            }
-            if ((reminder.priority == 0) || (reminder.priority == 5)) {
-                if reminder.description.characters.count > width_noturgent {
-                    width_noturgent = reminder.description.characters.count
-                }
-            }
-            //print(reminder)
-        }
-        print(width_urgent)
-        print(width_noturgent)
-        print(length_important)
-        print(length_notimportant)
     }
 }
