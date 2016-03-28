@@ -9,26 +9,26 @@ do {
     args.removeAtIndex(0)
     if args.count > 0 {
         switch (args[0]).lowercaseString {
-        case "c", "-c":
-            args.removeAtIndex(0)
-            try remCache.complete_reminder(args)
-        case "d", "-d":
-            args.removeAtIndex(0)
-            try remCache.delete_reminder(args)
-        case "h", "ui":
-            args.removeAtIndex(0)
-            remCache.add_reminder(args, priority: 1)
-        case "m", "nui":
-            args.removeAtIndex(0)
-            remCache.add_reminder(args, priority: 5)
-        case "l", "uni":
-            args.removeAtIndex(0)
-            remCache.add_reminder(args, priority: 9)
-        case "nuni":
-            args.removeAtIndex(0)
-            remCache.add_reminder(args, priority: 0)
-        default:
-            remCache.add_reminder(args, priority: 0)
+	        case "c", "-c":
+	            args.removeAtIndex(0)
+	            try remCache.complete_reminder(args)
+	        case "d", "-d":
+	            args.removeAtIndex(0)
+	            try remCache.delete_reminder(args)
+	        case "h", "ui":
+	            args.removeAtIndex(0)
+	            remCache.add_reminder(args, priority: 1)
+	        case "m", "nui":
+	            args.removeAtIndex(0)
+	            remCache.add_reminder(args, priority: 5)
+	        case "l", "uni":
+	            args.removeAtIndex(0)
+	            remCache.add_reminder(args, priority: 9)
+	        case "nuni":
+	            args.removeAtIndex(0)
+	            remCache.add_reminder(args, priority: 0)
+	        default:
+	            remCache.add_reminder(args, priority: 0)
         }
     }
     print("---------------------------------------------------------------------------------------")

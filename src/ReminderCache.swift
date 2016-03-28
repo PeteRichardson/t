@@ -39,16 +39,16 @@ class ReminderCache {
                 }
                 let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
                 switch (reminder.priority) {
-                case (1):
-                    self.uiItems[key] = reminder
-                case (5):
-                    self.nuiItems[key] = reminder
-                case (9):
-                    self.uniItems[key] = reminder
-                case (0):
-                    self.nuniItems[key] = reminder
-                default:
-                    print("Unexpected priority");
+	                case (1):
+	                    self.uiItems[key] = reminder
+	                case (5):
+	                    self.nuiItems[key] = reminder
+	                case (9):
+	                    self.uniItems[key] = reminder
+	                case (0):
+	                    self.nuniItems[key] = reminder
+	                default:
+	                    print("Unexpected priority");
                 }
             }
             fetched = true
@@ -82,16 +82,16 @@ class ReminderCache {
             try self.eventStore.saveReminder(reminder, commit:true);
             let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
             switch (reminder.priority) {
-            case (1):
-                self.uiItems[key] = reminder
-            case (5):
-                self.nuiItems[key] = reminder
-            case (9):
-                self.uniItems[key] = reminder
-            case (0):
-                self.nuniItems[key] = reminder
-            default:
-                print("Unexpected priority");
+	            case (1):
+	                self.uiItems[key] = reminder
+	            case (5):
+	                self.nuiItems[key] = reminder
+	            case (9):
+	                self.uniItems[key] = reminder
+	            case (0):
+	                self.nuniItems[key] = reminder
+	            default:
+	                print("Unexpected priority");
             }
             print("Added reminder: \(reminder.title)")
         } catch {
@@ -99,6 +99,7 @@ class ReminderCache {
         }
     }
     
+
     func delete_reminder(args:[String]) throws {
         for arg in args {
             let hash = arg.uppercaseString
