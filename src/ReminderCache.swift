@@ -181,13 +181,14 @@ class ReminderCache {
             return r2.completed
         }
         
+        let spaces = String(count: 500,repeatedValue: Character(" "))
         for x in 0..<rows {
-            var left: String = "                                        "
+            var left: String = spaces
             if x < sortedList1.count {
                 left = sortedList1[x].description + left
             }
             left = left.substringToIndex(left.startIndex.advancedBy(width1))
-            var right: String = "                                        "
+            var right: String = spaces
             if x < sortedList2.count {
                 right = sortedList2[x].description + right
             }

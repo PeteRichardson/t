@@ -1,7 +1,13 @@
 import EventKit
+import Cncurses
+import Darwin.ncurses
 
 do {
-
+	initscr()
+	var cols:Int = Int(COLS)
+	var leftcols:Int = Int(Double(COLS) * 0.5) - 4
+	var rightcols:Int = Int(COLS) - leftcols
+	endwin()
     
     var remCache = ReminderCache()
     
@@ -31,11 +37,13 @@ do {
 	            remCache.add_reminder(args, priority: 0)
         }
     }
-    print("---------------------------------------------------------------------------------------")
-    remCache.list_reminders_side_by_side(remCache.uiItems, list2:remCache.nuiItems, width1:40, width2:40)
-    print("---------------------------------------------------------------------------------------")
-    remCache.list_reminders_side_by_side(remCache.uniItems, list2:remCache.nuniItems, width1:40, width2:40)
-    print("---------------------------------------------------------------------------------------")
+
+    let separator : String = String(count: cols-1,repeatedValue: Character("-"))
+    print(separator)
+    remCache.list_reminders_side_by_side(remCache.uiItems, list2:remCache.nuiItems, width1:leftcols, width2:rightcols)
+    print(separator)
+    remCache.list_reminders_side_by_side(remCache.uniItems, list2:remCache.nuniItems, width1:leftcols, width2:rightcols)
+    print(separator)
 } catch {
     print("Something is wrong")
 }
