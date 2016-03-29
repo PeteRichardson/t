@@ -7,7 +7,6 @@ public class EisenhowerConsoleView {
 	var cols:Int
 	var leftcols:Int
 	var rightcols:Int
-	var separator:String
 
 	init() {
         // Use curses to figure out the width of the screen
@@ -16,7 +15,6 @@ public class EisenhowerConsoleView {
 		self.leftcols = Int(Double(COLS) * 0.5) - 8
 		self.rightcols = Int(COLS) - leftcols - 8
 		endwin()
-		self.separator = String(count: self.cols-1,repeatedValue: Character("-"))
 	}
 
 	func list_reminders_side_by_side(list1: [String: EKReminder], list2: [String: EKReminder], width1: Int, width2: Int) {
@@ -48,7 +46,15 @@ public class EisenhowerConsoleView {
     }
 
     // Given the four separate lists, dump them to the console.
-	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder]) {
+	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder], maxWidth: Int) {
+
+        if maxWidth < self.leftcols {
+            self.leftcols = maxWidth
+        }
+        if maxWidth < self.rightcols {
+            self.rightcols = maxWidth
+        }
+        let separator = String(count: self.leftcols + self.rightcols + 7,repeatedValue: Character("-"))
         print(separator)
 	    self.list_reminders_side_by_side(uiItems, list2:nuiItems, width1:self.leftcols, width2:self.rightcols)
 	    print(separator)

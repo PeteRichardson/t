@@ -6,6 +6,7 @@ class ReminderCache {
     var nuiItems   = [String: EKReminder]()
     var uniItems   = [String: EKReminder]()
     var nuniItems  = [String: EKReminder]()
+    var maxWidth:Int = 0
     var reminders: [EKReminder]!
     
     var eventStore: EKEventStore
@@ -18,7 +19,7 @@ class ReminderCache {
 	            //print("Access granted!")
 	        }
 	    })
-    
+        self.maxWidth = 0
         self.reminders = [EKReminder]()
         self.loadItems()
     }
@@ -50,7 +51,11 @@ class ReminderCache {
 	                default:
 	                    print("Unexpected priority");
                 }
+                if reminder.title.characters.count > self.maxWidth {
+                    self.maxWidth = reminder.title.characters.count
+                }
             }
+            self.maxWidth += 6
             fetched = true
         }
         
