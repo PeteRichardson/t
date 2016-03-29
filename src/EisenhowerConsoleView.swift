@@ -13,8 +13,8 @@ public class EisenhowerConsoleView {
         // Use curses to figure out the width of the screen
 		initscr()
 		self.cols = Int(COLS)
-		self.leftcols = Int(Double(COLS) * 0.5) - 4
-		self.rightcols = Int(COLS) - leftcols
+		self.leftcols = Int(Double(COLS) * 0.5) - 8
+		self.rightcols = Int(COLS) - leftcols - 8
 		endwin()
 		self.separator = String(count: self.cols-1,repeatedValue: Character("-"))
 	}
@@ -42,14 +42,14 @@ public class EisenhowerConsoleView {
             if x < sortedList2.count {
                 right = sortedList2[x].description + right
             }
-            right = right.substringToIndex(right.startIndex.advancedBy(width1))
+            right = right.substringToIndex(right.startIndex.advancedBy(width2))
             print("| \(left) | \(right) |")
         }
     }
 
     // Given the four separate lists, dump them to the console.
 	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder]) {
-		print(separator)
+        print(separator)
 	    self.list_reminders_side_by_side(uiItems, list2:nuiItems, width1:self.leftcols, width2:self.rightcols)
 	    print(separator)
 	    self.list_reminders_side_by_side(uniItems, list2:nuniItems, width1:self.leftcols, width2:self.rightcols)
