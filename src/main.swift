@@ -1,14 +1,8 @@
 import EventKit
-import Cncurses
-import Darwin.ncurses
 
 do {
-	initscr()
-	var cols:Int = Int(COLS)
-	var leftcols:Int = Int(Double(COLS) * 0.5) - 4
-	var rightcols:Int = Int(COLS) - leftcols
-	endwin()
-    
+	var view = EisenhowerConsoleView()
+
     var remCache = ReminderCache()
     
     var args = Process.arguments
@@ -38,12 +32,8 @@ do {
         }
     }
 
-    let separator : String = String(count: cols-1,repeatedValue: Character("-"))
-    print(separator)
-    remCache.list_reminders_side_by_side(remCache.uiItems, list2:remCache.nuiItems, width1:leftcols, width2:rightcols)
-    print(separator)
-    remCache.list_reminders_side_by_side(remCache.uniItems, list2:remCache.nuniItems, width1:leftcols, width2:rightcols)
-    print(separator)
+    view.display(remCache.uiItems, nuiItems: remCache.nuiItems, uniItems:remCache.uniItems, nuniItems: remCache.nuniItems)
+
 } catch {
     print("Something is wrong")
 }
