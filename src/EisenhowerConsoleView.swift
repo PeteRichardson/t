@@ -31,16 +31,26 @@ public class EisenhowerConsoleView {
         
         let spaces = String(count: self.cols,repeatedValue: Character(" "))
         for x in 0..<rows {
+            var i = width1
             var left: String = spaces
             if x < sortedList1.count {
+                i += 8
                 left = sortedList1[x].description + left
+                if sortedList1[x].completed {
+                    i += 8
+                }
             }
-            left = left.substringToIndex(left.startIndex.advancedBy(width1))
+            left = left.substringToIndex(left.startIndex.advancedBy(i))
             var right: String = spaces
+            i = width2
             if x < sortedList2.count {
+                i += 8
                 right = sortedList2[x].description + right
+                if sortedList2[x].completed {
+                    i += 8
+                }
             }
-            right = right.substringToIndex(right.startIndex.advancedBy(width2))
+            right = right.substringToIndex(right.startIndex.advancedBy(i))
             print("\u{2502} \(left) \u{2502} \(right) \u{2502}")
         }
     }
@@ -58,6 +68,7 @@ public class EisenhowerConsoleView {
         let leftcolborder = String(count: self.leftcols + 2,repeatedValue: Character("\u{2500}"))
         let rightcolborder = String(count: self.rightcols + 2,repeatedValue: Character("\u{2500}"))
         
+        print("\u{1B}[m")
         print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")
 	    self.list_reminders_side_by_side(uiItems, list2:nuiItems, width1:self.leftcols, width2:self.rightcols)
 	    print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
