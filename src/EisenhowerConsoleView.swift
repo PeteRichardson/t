@@ -58,10 +58,10 @@ public class EisenhowerConsoleView {
         let leftcolborder = String(count: self.leftcols + 2,repeatedValue: Character("\u{2500}"))
         let rightcolborder = String(count: self.rightcols + 2,repeatedValue: Character("\u{2500}"))
         
-        print("\u{250C}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{2510}")
+        print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")
 	    self.list_reminders_side_by_side(uiItems, list2:nuiItems, width1:self.leftcols, width2:self.rightcols)
 	    print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
 	    self.list_reminders_side_by_side(uniItems, list2:nuniItems, width1:self.leftcols, width2:self.rightcols)
-	    print("\u{2514}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{2518}")
+	    print("\u{2570}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{256F}")
 	}
 }
