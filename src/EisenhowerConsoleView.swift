@@ -41,24 +41,27 @@ public class EisenhowerConsoleView {
                 right = sortedList2[x].description + right
             }
             right = right.substringToIndex(right.startIndex.advancedBy(width2))
-            print("| \(left) | \(right) |")
+            print("\u{2502} \(left) \u{2502} \(right) \u{2502}")
         }
     }
 
     // Given the four separate lists, dump them to the console.
 	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder], maxWidth: Int) {
-
+        // Use box drawing characters to make a prettier border around the lists.
+        // see https://en.wikipedia.org/wiki/Box-drawing_character
         if maxWidth < self.leftcols {
             self.leftcols = maxWidth
         }
         if maxWidth < self.rightcols {
             self.rightcols = maxWidth
         }
-        let separator = String(count: self.leftcols + self.rightcols + 7,repeatedValue: Character("-"))
-        print(separator)
+        let leftcolborder = String(count: self.leftcols + 2,repeatedValue: Character("\u{2500}"))
+        let rightcolborder = String(count: self.rightcols + 2,repeatedValue: Character("\u{2500}"))
+        
+        print("\u{250C}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{2510}")
 	    self.list_reminders_side_by_side(uiItems, list2:nuiItems, width1:self.leftcols, width2:self.rightcols)
-	    print(separator)
+	    print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
 	    self.list_reminders_side_by_side(uniItems, list2:nuniItems, width1:self.leftcols, width2:self.rightcols)
-	    print(separator)
+	    print("\u{2514}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{2518}")
 	}
 }
