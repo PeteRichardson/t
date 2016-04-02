@@ -16,13 +16,7 @@ extension NSDate: Comparable {
     }
 }
 
-extension EKReminder {
-    public override var description: String {
-        let completed : String = self.completed ? "\u{1B}[32m✔\u{1B}[m" : " "
-        let hash = NSString(format:"\u{1B}[35m%02X\u{1B}[m", self.hash & 0xFF)
-        return "\(completed)  \(hash) \(self.title)"
-    }
-    
+extension EKReminder {    
     public var completedToday: Bool {
         return self.completed && self.completionDate!.dateWithoutTime() == NSDate().dateWithoutTime()
     }
