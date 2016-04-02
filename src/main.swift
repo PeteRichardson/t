@@ -32,7 +32,7 @@ do {
         }
     }
 
-    view.display(remCache.uiItems, nuiItems: remCache.nuiItems, uniItems:remCache.uniItems, nuniItems: remCache.nuniItems, maxWidth: remCache.maxWidth)
+    view.display(remCache.uiItems, nuiItems: remCache.nuiItems, uniItems:remCache.uniItems, nuniItems: remCache.nuniItems, leftMaxWidth: remCache.leftMaxWidth, rightMaxWidth: remCache.rightMaxWidth)
 
 } catch {
     print("Something is wrong")

@@ -56,15 +56,20 @@ public class EisenhowerConsoleView {
     }
 
     // Given the four separate lists, dump them to the console.
-	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder], maxWidth: Int) {
+	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder], leftMaxWidth: Int, rightMaxWidth: Int) {
         // Use box drawing characters to make a prettier border around the lists.
         // see https://en.wikipedia.org/wiki/Box-drawing_character
-        if maxWidth < self.leftcols {
-            self.leftcols = maxWidth
+        if leftMaxWidth < self.leftcols {
+            self.leftcols = leftMaxWidth
         }
-        if maxWidth < self.rightcols {
-            self.rightcols = maxWidth
+        if rightMaxWidth < self.rightcols {
+            self.rightcols = rightMaxWidth
         }
+        if leftMaxWidth + rightMaxWidth <= self.cols {
+            self.leftcols = leftMaxWidth
+            self.rightcols = rightMaxWidth
+        }
+
         let leftcolborder = String(count: self.leftcols + 2,repeatedValue: Character("\u{2500}"))
         let rightcolborder = String(count: self.rightcols + 2,repeatedValue: Character("\u{2500}"))
         
