@@ -112,7 +112,6 @@ class ReminderCache {
             print("Failed to add reminder!")
         }
     }
-    
 
     func delete_reminder(args:[String]) throws {
         for arg in args {
@@ -147,8 +146,37 @@ class ReminderCache {
                 self.nuniItems[hash] = nil
                 print("Deleted nuni reminder: \(title)")
             }
+        }    
+    }
+
+    func update_reminder(reminder: EKReminder, priority:Int) throws {
+        let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
+        switch (reminder.priority) {
+            case (1):
+                self.uiItems[key] = nil
+            case (5):
+                self.nuiItems[key] = nil
+            case (9):
+                self.uniItems[key] = nil
+            case (0):
+                self.nuniItems[key] = nil
+            default:
+                print("Unexpected priority");
         }
-        
+        reminder.priority = priority
+        try self.eventStore.saveReminder(reminder, commit:true);
+        switch (reminder.priority) {
+            case (1):
+                self.uiItems[key] = reminder
+            case (5):
+                self.nuiItems[key] = reminder
+            case (9):
+                self.uniItems[key] = reminder
+            case (0):
+                self.nuniItems[key] = reminder
+            default:
+                print("Unexpected priority");
+        }
     }
 
     func move_reminder(args:[String]) {
@@ -171,8 +199,7 @@ class ReminderCache {
 
         for arg in args[1..<args.count] {
             let hash = arg.uppercaseString
-            print("handling \(hash)")
-            do {
+             do {
                 let iItems : Bool = (self.uiItems[hash] == nil) && (self.nuiItems[hash] == nil)
                 let uItems : Bool = (self.uniItems[hash] == nil) && (self.nuniItems[hash] == nil)
                 if  iItems && uItems {
@@ -180,35 +207,16 @@ class ReminderCache {
                     continue
                 }
                 if let reminder : EKReminder = self.uiItems[hash] {
-                    let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
-                    print ("oldpri = \(reminder.priority)")
-                    switch (reminder.priority) {
-	                    case (1):
-	                        self.uiItems[key] = nil
-	                    case (5):
-	                        self.nuiItems[key] = nil
-	                    case (9):
-	                        self.uniItems[key] = nil
-	                    case (0):
-	                        self.nuniItems[key] = nil
-	                    default:
-	                        print("Unexpected priority");
-                    }
-                    reminder.priority = priority
-                    try self.eventStore.saveReminder(reminder, commit:true);
-                    switch (reminder.priority) {
-	                    case (1):
-	                        self.uiItems[key] = reminder
-	                    case (5):
-	                        self.nuiItems[key] = reminder
-	                    case (9):
-	                        self.uniItems[key] = reminder
-	                    case (0):
-	                        self.nuniItems[key] = reminder
-	                    default:
-	                        print("Unexpected priority");
-                    }
-                    print("skloob")
+                    try self.update_reminder(reminder, priority: priority)
+                }
+                if let reminder : EKReminder = self.nuiItems[hash] {
+                    try self.update_reminder(reminder, priority: priority)
+                }
+                if let reminder : EKReminder = self.uniItems[hash] {
+                    try self.update_reminder(reminder, priority: priority)
+                }
+                if let reminder : EKReminder = self.nuniItems[hash] {
+                    try self.update_reminder(reminder, priority: priority)
                 }
             } catch {
                 print("Failed to move reminder!")
