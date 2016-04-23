@@ -24,7 +24,7 @@ public class EisenhowerConsoleView {
         let titleColorCompleted = 238
 
         let completed : String = rem.completed ? "\u{1B}[38;5;\(checkColor)m✔\u{1B}[m" : " "
-        let hash = NSString(format:"\u{1B}[38;5;\(hashColor)m%02X\u{1B}[m", rem.hash & 0xFF)
+        let hash = NSString(format:"\u{1B}[38;5;\(hashColor)m%03X\u{1B}[m", rem.hash & 0xFFF)
         let titleColor:Int = rem.completed ? titleColorCompleted : titleColorNotCompleted
         var titleText:String = rem.title + String(count: width,repeatedValue: Character(" "))
         titleText = titleText.substringToIndex(titleText.startIndex.advancedBy(width-6))
@@ -45,11 +45,11 @@ public class EisenhowerConsoleView {
         for row in 0..<rowCount {
             var left: String = String(count: width1,repeatedValue: Character(" "))
             if row < sortedList1.count {
-                left = self.format(sortedList1[row], width: width1)
+                left = self.format(sortedList1[row], width: width1-1)
             }
             var right: String = String(count: width2,repeatedValue: Character(" "))
             if row < sortedList2.count {
-                right = self.format(sortedList2[row], width: width2)
+                right = self.format(sortedList2[row], width: width2-1)
             }
             print("\u{2502} \(left) \u{2502} \(right) \u{2502}")
         }

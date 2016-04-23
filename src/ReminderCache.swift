@@ -40,7 +40,7 @@ class ReminderCache {
                 if (reminder.completed) && (!reminder.completedToday) {
                     continue
                 }
-                let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
+                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
                 switch (reminder.priority) {
 	                case (1):
 	                    self.uiItems[key] = reminder
@@ -63,8 +63,8 @@ class ReminderCache {
 	                    print("Unexpected priority");
                 }
             }
-            self.leftMaxWidth += 10
-            self.rightMaxWidth += 10
+            self.leftMaxWidth += 8
+            self.rightMaxWidth += 8
             fetched = true
         }
         
