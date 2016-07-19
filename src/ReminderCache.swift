@@ -59,6 +59,9 @@ class ReminderCache {
                         }
 	                case (0):
 	                    self.nuniItems[key] = reminder
+                        if reminder.title.characters.count > self.rightMaxWidth {
+                            self.rightMaxWidth = reminder.title.characters.count
+                        }
 	                default:
 	                    print("Unexpected priority");
                 }
@@ -113,44 +116,8 @@ class ReminderCache {
         }
     }
 
-    func delete_reminder(args:[String]) throws {
-        for arg in args {
-            let hash = arg.uppercaseString
-            let iItems : Bool = (self.uiItems[hash] == nil) && (self.nuiItems[hash] == nil)
-            let uItems : Bool = (self.uniItems[hash] == nil) && (self.nuniItems[hash] == nil)
-            if  iItems && uItems {
-                print("Error: no reminder with id \(hash)")
-                continue
-            }
-            if let reminder : EKReminder = self.uiItems[hash] {
-                let title:String = reminder.title
-                try self.eventStore.removeReminder(reminder, commit:true)
-                self.uiItems[hash] = nil
-                print("Deleted ui reminder: \(title)")
-            }
-            if let reminder : EKReminder = self.nuiItems[hash] {
-                let title:String = reminder.title
-                try self.eventStore.removeReminder(reminder, commit:true);
-                self.nuiItems[hash] = nil
-                print("Deleted nui reminder: \(title)")
-            }
-            if let reminder : EKReminder = self.uniItems[hash] {
-                let title:String = reminder.title
-                try self.eventStore.removeReminder(reminder, commit:true);
-                self.uniItems[hash] = nil
-                print("Deleted uni reminder: \(title)")
-            }
-            if let reminder : EKReminder = self.nuniItems[hash] {
-                let title:String = reminder.title
-                try self.eventStore.removeReminder(reminder, commit:true);
-                self.nuniItems[hash] = nil
-                print("Deleted nuni reminder: \(title)")
-            }
-        }    
-    }
-
     func update_reminder(reminder: EKReminder, priority:Int) throws {
-        let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
+        let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
         switch (reminder.priority) {
             case (1):
                 self.uiItems[key] = nil
@@ -184,76 +151,80 @@ class ReminderCache {
 
         var priority:Int = 0;
         switch (args[0]) {
-	        case "ui":
-	            priority = 1
-	        case "nui":
-	            priority = 5
-	        case "uni":
-	            priority = 9
-	        case "nuni":
-	            priority = 0
-	        default:
-	            print("# Error: unrecognized priority (expected ui nui uni nuni)")
-	            return
+            case "ui":
+                priority = 1
+            case "nui":
+                priority = 5
+            case "uni":
+                priority = 9
+            case "nuni":
+                priority = 0
+            default:
+                print("# Error: unrecognized priority (expected ui nui uni nuni)")
+                return
         }
-
-        for arg in args[1..<args.count] {
-            let hash = arg.uppercaseString
-             do {
-                let iItems : Bool = (self.uiItems[hash] == nil) && (self.nuiItems[hash] == nil)
-                let uItems : Bool = (self.uniItems[hash] == nil) && (self.nuniItems[hash] == nil)
-                if  iItems && uItems {
-                    print("Error: no reminder with id \(hash)")
-                    continue
-                }
-                if let reminder : EKReminder = self.uiItems[hash] {
-                    try self.update_reminder(reminder, priority: priority)
-                }
-                if let reminder : EKReminder = self.nuiItems[hash] {
-                    try self.update_reminder(reminder, priority: priority)
-                }
-                if let reminder : EKReminder = self.uniItems[hash] {
-                    try self.update_reminder(reminder, priority: priority)
-                }
-                if let reminder : EKReminder = self.nuniItems[hash] {
-                    try self.update_reminder(reminder, priority: priority)
-                }
-            } catch {
-                print("Failed to move reminder!")
+        for reminder in self.reminders as [EKReminder]! {
+            if (reminder.completed) && (!reminder.completedToday) {
+                continue
             }
+            for arg in args[0..<args.count] {
+                let hash = arg.uppercaseString
+                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
+                if hash == key {
+                    do {
+                        try self.update_reminder(reminder, priority: priority)
+                    } catch {
+                        print("Failed to move reminder!")
+                    }
 
+                }
+            }
+        }
+    }
+
+    func delete_reminder(args:[String]) throws {
+        for reminder in self.reminders as [EKReminder]! {
+            if (reminder.completed) && (!reminder.completedToday) {
+                continue
+            }
+            for arg in args[0..<args.count] {
+                let hash = arg.uppercaseString
+                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
+                if hash == key {
+                    let title:String = reminder.title
+                    try self.eventStore.removeReminder(reminder, commit:true);
+                    print("Deleted reminder: \(title)")
+
+                    if let _ : EKReminder = self.uiItems[hash] {
+                        self.uiItems[hash] = nil
+                    } else if let _ : EKReminder = self.nuiItems[hash] {
+                        self.nuiItems[hash] = nil
+                    } else if let _ : EKReminder = self.uniItems[hash] {
+                        self.uniItems[hash] = nil
+                    } else if let _ : EKReminder = self.nuniItems[hash] {
+                        self.nuniItems[hash] = nil
+                    }
+
+                }
+            }
         }
     }
 
     func complete_reminder(args:[String]) throws {
-        for arg in args {
-            let hash = arg.uppercaseString
-            let iItems : Bool = (self.uiItems[hash] == nil) && (self.nuiItems[hash] == nil)
-            let uItems : Bool = (self.uniItems[hash] == nil) && (self.nuniItems[hash] == nil)
-            if  iItems && uItems {
-                print("Error: no reminder with id \(hash)")
+        for reminder in self.reminders as [EKReminder]! {
+            if (reminder.completed) && (!reminder.completedToday) {
                 continue
             }
-            if let reminder : EKReminder = self.uiItems[hash] {
-                reminder.completed = true
-                try self.eventStore.saveReminder(reminder, commit:true);
-                print("Completed reminder: \(reminder.title)")
-            }
-            if let reminder : EKReminder = self.nuiItems[hash] {
-                reminder.completed = true
-                try self.eventStore.saveReminder(reminder, commit:true);
-                print("Completed reminder: \(reminder.title)")
-            }
-            if let reminder : EKReminder = self.uniItems[hash] {
-                reminder.completed = true
-                try self.eventStore.saveReminder(reminder, commit:true);
-                print("Completed reminder: \(reminder.title)")
-            }
-            if let reminder : EKReminder = self.nuniItems[hash] {
-                reminder.completed = true
-                try self.eventStore.saveReminder(reminder, commit:true);
-                print("Completed reminder: \(reminder.title)")
+            for arg in args[0..<args.count] {
+                let hash = arg.uppercaseString
+                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
+                if hash == key {
+                    reminder.completed = true
+                    try self.eventStore.saveReminder(reminder, commit:true);
+                    print("Completed reminder: \(reminder.title)")
+                }
             }
         }
     }
+
 }
