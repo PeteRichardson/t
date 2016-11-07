@@ -14,7 +14,7 @@ class ReminderCache {
 
     init() {
 	    self.eventStore = EKEventStore()
-	    eventStore.requestAccessToEntityType(EKEntityType.Reminder, completion: {
+	    eventStore.requestAccess(to: EKEntityType.reminder, completion: {
 	        (granted, error) in
 	        if (granted) && (error == nil) {
 	            //print("Access granted!")
@@ -24,20 +24,22 @@ class ReminderCache {
         self.rightMaxWidth = 0
         self.reminders = [EKReminder]()
         self.loadItems()
+        //print("leftMaxWidth = \(self.leftMaxWidth)")
+        //print("rightMaxWidth = \(self.rightMaxWidth)")
     }
     
     func loadItems() {
         var fetched: Bool = false
         let cal = self.eventStore.defaultCalendarForNewReminders()
         
-        let predicate = self.eventStore.predicateForRemindersInCalendars([cal])
+        let predicate = self.eventStore.predicateForReminders(in: [cal])
         
-        self.eventStore.fetchRemindersMatchingPredicate(predicate) { foundReminders in
+        self.eventStore.fetchReminders(matching: predicate) { foundReminders in
             
             self.reminders = foundReminders
             
             for reminder in self.reminders as [EKReminder]! {
-                if (reminder.completed) && (!reminder.completedToday) {
+                if (reminder.isCompleted) && (!reminder.completedToday) {
                     continue
                 }
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
@@ -88,7 +90,7 @@ class ReminderCache {
         let reminder = EKReminder(eventStore: self.eventStore)
         reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
         
-        reminder.title = args.joinWithSeparator(" ")
+        reminder.title = args.joined(separator: " ")
         reminder.priority = priority
         if reminder.title.isEmpty {
             print("# Error: Can't add empty reminder")
@@ -96,7 +98,7 @@ class ReminderCache {
         }
         
         do {
-            try self.eventStore.saveReminder(reminder, commit:true);
+            try self.eventStore.save(reminder, commit:true);
             let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
             switch (reminder.priority) {
 	            case (1):
@@ -131,7 +133,7 @@ class ReminderCache {
                 print("Unexpected priority");
         }
         reminder.priority = priority
-        try self.eventStore.saveReminder(reminder, commit:true);
+        try self.eventStore.save(reminder, commit:true);
         switch (reminder.priority) {
             case (1):
                 self.uiItems[key] = reminder
@@ -164,15 +166,15 @@ class ReminderCache {
                 return
         }
         for reminder in self.reminders as [EKReminder]! {
-            if (reminder.completed) && (!reminder.completedToday) {
+            if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
             for arg in args[0..<args.count] {
-                let hash = arg.uppercaseString
+                let hash = arg.uppercased()
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
                 if hash == key {
                     do {
-                        try self.update_reminder(reminder, priority: priority)
+                        try self.update_reminder(reminder: reminder, priority: priority)
                     } catch {
                         print("Failed to move reminder!")
                     }
@@ -184,15 +186,15 @@ class ReminderCache {
 
     func delete_reminder(args:[String]) throws {
         for reminder in self.reminders as [EKReminder]! {
-            if (reminder.completed) && (!reminder.completedToday) {
+            if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
             for arg in args[0..<args.count] {
-                let hash = arg.uppercaseString
+                let hash = arg.uppercased()
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
                 if hash == key {
                     let title:String = reminder.title
-                    try self.eventStore.removeReminder(reminder, commit:true);
+                    try self.eventStore.remove(reminder, commit:true);
                     print("Deleted reminder: \(title)")
 
                     if let _ : EKReminder = self.uiItems[hash] {
@@ -212,15 +214,15 @@ class ReminderCache {
 
     func complete_reminder(args:[String]) throws {
         for reminder in self.reminders as [EKReminder]! {
-            if (reminder.completed) && (!reminder.completedToday) {
+            if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
             for arg in args[0..<args.count] {
-                let hash = arg.uppercaseString
+                let hash = arg.uppercased()
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
                 if hash == key {
-                    reminder.completed = true
-                    try self.eventStore.saveReminder(reminder, commit:true);
+                    reminder.isCompleted = true
+                    try self.eventStore.save(reminder, commit:true);
                     print("Completed reminder: \(reminder.title)")
                 }
             }

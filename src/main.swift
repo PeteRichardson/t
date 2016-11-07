@@ -6,36 +6,36 @@ do {
     var remCache = ReminderCache()
     
     var args = Process.arguments
-    args.removeAtIndex(0)
+    args.remove(at:0)
     if args.count > 0 {
-        switch (args[0]).lowercaseString {
+        switch (args[0]).lowercased() {
 	        case "c":
-	            args.removeAtIndex(0)
-	            try remCache.complete_reminder(args)
+	            args.remove(at: 0)
+	            try remCache.complete_reminder(args: args)
 	        case "d":
-	            args.removeAtIndex(0)
-	            try remCache.delete_reminder(args)
+	            args.remove(at: 0)
+	            try remCache.delete_reminder(args: args)
 	        case "ui":
-	            args.removeAtIndex(0)
-	            remCache.add_reminder(args, priority: 1)
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 1)
 	        case "nui":
-	            args.removeAtIndex(0)
-	            remCache.add_reminder(args, priority: 5)
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 5)
 	        case "m":
-	            args.removeAtIndex(0)
-	            remCache.move_reminder(args)
+	            args.remove(at: 0)
+	            remCache.move_reminder(args: args)
 	        case "uni":
-	            args.removeAtIndex(0)
-	            remCache.add_reminder(args, priority: 9)
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 9)
 	        case "nuni":
-	            args.removeAtIndex(0)
-	            remCache.add_reminder(args, priority: 0)
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 0)
 	        default:
-	            remCache.add_reminder(args, priority: 0)
+	            remCache.add_reminder(args: args, priority: 0)
         }
     }
 
-    view.display(remCache.uiItems, nuiItems: remCache.nuiItems, uniItems:remCache.uniItems, nuniItems: remCache.nuniItems, leftMaxWidth: remCache.leftMaxWidth, rightMaxWidth: remCache.rightMaxWidth)
+    view.display(uiItems: remCache.uiItems, nuiItems: remCache.nuiItems, uniItems:remCache.uniItems, nuniItems: remCache.nuniItems, leftMaxWidth: remCache.leftMaxWidth, rightMaxWidth: remCache.rightMaxWidth)
 
 } catch {
     print("Something is wrong")
