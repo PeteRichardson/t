@@ -5,7 +5,7 @@ do {
 
     var remCache = ReminderCache()
     
-    var args = Process.arguments
+    var args = CommandLine.arguments
     args.remove(at:0)
     if args.count > 0 {
         switch (args[0]).lowercased() {

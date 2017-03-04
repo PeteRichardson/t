@@ -30,9 +30,9 @@ public class EisenhowerConsoleView {
 
 
         let completed : String = rem.isCompleted ? "\u{1B}[38;5;\(checkColor)m✔\u{1B}[m" : " "
-        let hash = NSString(format:"\u{1B}[38;5;\(hashColor)m%03X\u{1B}[m", rem.hash & 0xFFF)
+        let hash = String(format:"\u{1B}[38;5;\(hashColor)m%03X\u{1B}[m", rem.hash & 0xFFF)
         let titleColor:Int = rem.isCompleted ? titleColorCompleted : titleColorNotCompleted
-        var titleText:String = rem.title + String(repeating: Character(" "), count: width)
+        var titleText:String = rem.title + String(repeating: " ", count: width)
         //print ("titleText width = \(titleText.characters.count)")
         let index = titleText.index(titleText.startIndex, offsetBy: width-6)
         titleText = titleText.substring(to: index)
@@ -55,11 +55,11 @@ public class EisenhowerConsoleView {
         }
         
         for row in 0..<rowCount {
-            var left: String = String(repeating: Character(" "), count: width1)
+            var left: String = String(repeating: " ", count: width1)
             if row < sortedList1.count {
                 left = self.format(rem: sortedList1[row], width: width1-1)
             }
-            var right: String = String(repeating: Character(" "), count: width2)
+            var right: String = String(repeating: " ", count: width2)
             if row < sortedList2.count {
                 right = self.format(rem: sortedList2[row], width: width2-1)
             }
@@ -86,8 +86,8 @@ public class EisenhowerConsoleView {
             //print("reset again rightcols = \(self.rightcols)")
        }
 
-        let leftcolborder = String(repeating: Character("\u{2500}"), count: self.leftcols + 2)
-        let rightcolborder = String(repeating: Character("\u{2500}"), count: self.rightcols + 2)
+        let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols + 2)
+        let rightcolborder = String(repeating: "\u{2500}", count: self.rightcols + 2)
         
         print("\u{1B}[m")
         print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")
