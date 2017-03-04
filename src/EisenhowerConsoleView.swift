@@ -32,9 +32,9 @@ public class EisenhowerConsoleView {
         let completed : String = rem.isCompleted ? "\u{1B}[38;5;\(checkColor)m✔\u{1B}[m" : " "
         let hash = String(format:"\u{1B}[38;5;\(hashColor)m%03X\u{1B}[m", rem.hash & 0xFFF)
         let titleColor:Int = rem.isCompleted ? titleColorCompleted : titleColorNotCompleted
-        var titleText:String = rem.title + String(repeating: " ", count: width)
+        var titleText:String = String(rem.priority) + " " + rem.title + String(repeating: " ", count: width)
         //print ("titleText width = \(titleText.characters.count)")
-        let index = titleText.index(titleText.startIndex, offsetBy: width-6)
+        let index = titleText.index(titleText.startIndex, offsetBy: width-4)
         titleText = titleText.substring(to: index)
         //print ("titleText width2 = \(titleText.characters.count)")
         let title = "\u{1B}[38;5;\(titleColor)m\(titleText)\u{1B}[m"
@@ -48,14 +48,22 @@ public class EisenhowerConsoleView {
 
         let rowCount = list1.count > list2.count ? list1.count : list2.count
         var sortedList1 = list1.values.sorted() { (r1, r2) in
-            return r2.isCompleted
+            if r1.isCompleted == r2.isCompleted {
+                return r1.priority < r2.priority
+            } else {
+                return r2.isCompleted
+            }
         }
         var sortedList2 = list2.values.sorted() { (r1, r2) in
-            return r2.isCompleted
+            if r1.isCompleted == r2.isCompleted {
+                return r1.priority < r2.priority
+            } else {
+                return r2.isCompleted
+            }
         }
         
         for row in 0..<rowCount {
-            var left: String = String(repeating: " ", count: width1)
+            var left: String = String(repeating: " ", count: width1 + 2)
             if row < sortedList1.count {
                 left = self.format(rem: sortedList1[row], width: width1-1)
             }
@@ -86,8 +94,8 @@ public class EisenhowerConsoleView {
             //print("reset again rightcols = \(self.rightcols)")
        }
 
-        let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols + 2)
-        let rightcolborder = String(repeating: "\u{2500}", count: self.rightcols + 2)
+        let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols + 4)
+        let rightcolborder = String(repeating: "\u{2500}", count: self.rightcols + 4)
         
         print("\u{1B}[m")
         print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")

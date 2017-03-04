@@ -44,22 +44,22 @@ class ReminderCache {
                 }
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
                 switch (reminder.priority) {
-	                case (1):
+	                case 1,2,3:
 	                    self.uiItems[key] = reminder
                         if reminder.title.characters.count > self.leftMaxWidth {
                             self.leftMaxWidth = reminder.title.characters.count
                         }
-	                case (5):
+	                case 4,5,6:
 	                    self.nuiItems[key] = reminder
                         if reminder.title.characters.count > self.rightMaxWidth {
                             self.rightMaxWidth = reminder.title.characters.count
                         }
-	                case (9):
+	                case 7,8,9:
 	                    self.uniItems[key] = reminder
                         if reminder.title.characters.count > self.leftMaxWidth {
                             self.leftMaxWidth = reminder.title.characters.count
                         }
-	                case (0):
+	                case 0:
 	                    self.nuniItems[key] = reminder
                         if reminder.title.characters.count > self.rightMaxWidth {
                             self.rightMaxWidth = reminder.title.characters.count
@@ -101,11 +101,11 @@ class ReminderCache {
             try self.eventStore.save(reminder, commit:true);
             let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
             switch (reminder.priority) {
-	            case (1):
+	            case 1,2,3:
 	                self.uiItems[key] = reminder
-	            case (5):
+	            case 4,5,6:
 	                self.nuiItems[key] = reminder
-	            case (9):
+	            case 7,8,9:
 	                self.uniItems[key] = reminder
 	            case (0):
 	                self.nuniItems[key] = reminder
@@ -121,11 +121,11 @@ class ReminderCache {
     func update_reminder(reminder: EKReminder, priority:Int) throws {
         let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
         switch (reminder.priority) {
-            case (1):
+            case 1,2,3:
                 self.uiItems[key] = nil
-            case (5):
+            case 4,5,6:
                 self.nuiItems[key] = nil
-            case (9):
+            case 7,8,9:
                 self.uniItems[key] = nil
             case (0):
                 self.nuniItems[key] = nil
@@ -135,11 +135,11 @@ class ReminderCache {
         reminder.priority = priority
         try self.eventStore.save(reminder, commit:true);
         switch (reminder.priority) {
-            case (1):
+            case 1,2,3:
                 self.uiItems[key] = reminder
-            case (5):
+            case 4,5,6:
                 self.nuiItems[key] = reminder
-            case (9):
+            case 7,8,9:
                 self.uniItems[key] = reminder
             case (0):
                 self.nuniItems[key] = reminder
@@ -153,11 +153,23 @@ class ReminderCache {
 
         var priority:Int = 0;
         switch (args[0]) {
-            case "ui":
+            case "uih":
                 priority = 1
+            case "ui":
+                priority = 2
+            case "uil":
+                priority = 3
+            case "nuih":
+                priority = 4
             case "nui":
                 priority = 5
+            case "nuil":
+                priority = 6
+            case "unih":
+                priority = 7
             case "uni":
+                priority = 8
+            case "unil":
                 priority = 9
             case "nuni":
                 priority = 0

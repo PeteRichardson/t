@@ -15,16 +15,34 @@ do {
 	        case "d":
 	            args.remove(at: 0)
 	            try remCache.delete_reminder(args: args)
-	        case "ui":
+	        case "uih":
 	            args.remove(at: 0)
 	            remCache.add_reminder(args: args, priority: 1)
+	        case "ui":
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 2)
+	        case "uil":
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 3)
+	        case "nuih":
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 4)
 	        case "nui":
 	            args.remove(at: 0)
 	            remCache.add_reminder(args: args, priority: 5)
+	        case "nuil":
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 6)
 	        case "m":
 	            args.remove(at: 0)
 	            remCache.move_reminder(args: args)
+	        case "unih":
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 7)
 	        case "uni":
+	            args.remove(at: 0)
+	            remCache.add_reminder(args: args, priority: 8)
+	        case "unil":
 	            args.remove(at: 0)
 	            remCache.add_reminder(args: args, priority: 9)
 	        case "nuni":
