@@ -18,8 +18,8 @@ extension EKReminder {
 		let completionday   = calendar.component(.day,   from: self.completionDate! as Date)
 
 		let today  = NSDate()
-		let year  = calendar.component(.hour, from: today as Date)
-		let month = calendar.component(.minute, from: today as Date)
+		let year  = calendar.component(.year, from: today as Date)
+		let month = calendar.component(.month, from: today as Date)
 		let day   = calendar.component(.day, from: today as Date)
 
 		return ((completionday == day) && (completionmonth == month) && (completionyear == year))
