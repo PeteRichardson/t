@@ -12,8 +12,8 @@ public class EisenhowerConsoleView {
         // Use curses to figure out the width of the screen
 		initscr()
 		self.cols = Int(COLS)
-		self.leftcols = Int(Double(COLS) * 0.5) - 8
-		self.rightcols = Int(COLS) - leftcols - 8
+		self.leftcols = Int(Double(self.cols) * 0.5)
+		self.rightcols = Int(self.cols) - self.leftcols
 		endwin()
         //print("cols = \(self.cols)")
         //print("leftcols = \(self.leftcols)")
@@ -63,13 +63,13 @@ public class EisenhowerConsoleView {
         }
         
         for row in 0..<rowCount {
-            var left: String = String(repeating: " ", count: width1 + 2)
+            var left: String = String(repeating: " ", count: width1 - 4)
             if row < sortedList1.count {
-                left = self.format(rem: sortedList1[row], width: width1-1)
+                left = self.format(rem: sortedList1[row], width: width1-7)
             }
             var right: String = String(repeating: " ", count: width2)
             if row < sortedList2.count {
-                right = self.format(rem: sortedList2[row], width: width2-1)
+                right = self.format(rem: sortedList2[row], width: width2-6)
             }
             print("\u{2502} \(left) \u{2502} \(right) \u{2502}")
         }
@@ -94,8 +94,8 @@ public class EisenhowerConsoleView {
             //print("reset again rightcols = \(self.rightcols)")
        }
 
-        let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols + 4)
-        let rightcolborder = String(repeating: "\u{2500}", count: self.rightcols + 4)
+        let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols - 2)
+        let rightcolborder = String(repeating: "\u{2500}", count: self.rightcols - 1)
         
         print("\u{1B}[m")
         print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")
