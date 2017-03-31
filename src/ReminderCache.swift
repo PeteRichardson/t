@@ -43,33 +43,40 @@ class ReminderCache {
                     continue
                 }
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
+                //print("len(\(reminder.title) = \(reminder.title.characters.count)")
                 switch (reminder.priority) {
 	                case 1,2,3:
 	                    self.uiItems[key] = reminder
                         if reminder.title.characters.count > self.leftMaxWidth {
                             self.leftMaxWidth = reminder.title.characters.count
+                            //print("ui - leftMaxWidth = \(self.leftMaxWidth)")
                         }
 	                case 4,5,6:
 	                    self.nuiItems[key] = reminder
                         if reminder.title.characters.count > self.rightMaxWidth {
                             self.rightMaxWidth = reminder.title.characters.count
+                            //print("nui - rightMaxWidth = \(self.rightMaxWidth)")
                         }
 	                case 7,8,9:
 	                    self.uniItems[key] = reminder
                         if reminder.title.characters.count > self.leftMaxWidth {
                             self.leftMaxWidth = reminder.title.characters.count
+                            //print("uni - leftMaxWidth = \(self.leftMaxWidth)")
                         }
 	                case 0:
 	                    self.nuniItems[key] = reminder
                         if reminder.title.characters.count > self.rightMaxWidth {
                             self.rightMaxWidth = reminder.title.characters.count
+                            //print("nuni - rightMaxWidth = \(self.rightMaxWidth)")
                         }
 	                default:
 	                    print("Unexpected priority");
                 }
             }
-            self.leftMaxWidth += 8
-            self.rightMaxWidth += 8
+            self.leftMaxWidth += 13
+            self.rightMaxWidth += 13
+            //print("after +13: leftMaxWidth = \(self.leftMaxWidth)")
+            //print("after +13:  rightMaxWidth = \(self.rightMaxWidth)")
             fetched = true
         }
         
