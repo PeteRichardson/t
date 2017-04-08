@@ -29,6 +29,9 @@ class ReminderCache {
     }
     
     func loadItems() {
+        self.leftMaxWidth = 0
+        self.rightMaxWidth = 0
+        self.reminders = [EKReminder]()
         var fetched: Bool = false
         let cal = self.eventStore.defaultCalendarForNewReminders()
         
@@ -103,22 +106,9 @@ class ReminderCache {
             print("# Error: Can't add empty reminder")
             return
         }
-        
+
         do {
             try self.eventStore.save(reminder, commit:true);
-            let key:String = NSString(format:"%02X", reminder.hash & 0xFF) as String
-            switch (reminder.priority) {
-	            case 1,2,3:
-	                self.uiItems[key] = reminder
-	            case 4,5,6:
-	                self.nuiItems[key] = reminder
-	            case 7,8,9:
-	                self.uniItems[key] = reminder
-	            case (0):
-	                self.nuniItems[key] = reminder
-	            default:
-	                print("Unexpected priority");
-            }
             print("Added reminder: \(reminder.title)")
         } catch {
             print("Failed to add reminder!")

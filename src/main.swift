@@ -52,7 +52,7 @@ do {
 	            remCache.add_reminder(args: args, priority: 0)
         }
     }
-
+    remCache.loadItems()
     view.display(uiItems: remCache.uiItems, nuiItems: remCache.nuiItems, uniItems:remCache.uniItems, nuniItems: remCache.nuniItems, leftMaxWidth: remCache.leftMaxWidth, rightMaxWidth: remCache.rightMaxWidth)
 
 } catch {
