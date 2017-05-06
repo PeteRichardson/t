@@ -67,7 +67,7 @@ public class EisenhowerConsoleView {
             if row < sortedList1.count {
                 left = self.format(rem: sortedList1[row], width: width1-7)
             }
-            var right: String = String(repeating: " ", count: width2)
+            var right: String = String(repeating: " ", count: width2-3)
             if row < sortedList2.count {
                 right = self.format(rem: sortedList2[row], width: width2-6)
             }
