@@ -1,0 +1,12 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "Cncurses",
+      "reason": null,
+      "repositoryURL": "https://github.com/PeteRichardson/Cncurses.git",
+      "version": "1.0.0"
+    }
+  ],
+  "version": 1
+}
