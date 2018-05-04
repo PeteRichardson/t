@@ -41,35 +41,35 @@ class ReminderCache {
             
             self.reminders = foundReminders
             
-            for reminder in self.reminders as [EKReminder]! {
+            for reminder in self.reminders {
                 if (reminder.isCompleted) && (!reminder.completedToday) {
                     continue
                 }
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-                //print("len(\(reminder.title) = \(reminder.title.characters.count)")
+                //print("len(\(reminder.title) = \(reminder.title.count)")
                 switch (reminder.priority) {
 	                case 1,2,3:
 	                    self.uiItems[key] = reminder
-                        if reminder.title.characters.count > self.leftMaxWidth {
-                            self.leftMaxWidth = reminder.title.characters.count
+                        if reminder.title.count > self.leftMaxWidth {
+                            self.leftMaxWidth = reminder.title.count
                             //print("ui - leftMaxWidth = \(self.leftMaxWidth)")
                         }
 	                case 4,5,6:
 	                    self.nuiItems[key] = reminder
-                        if reminder.title.characters.count > self.rightMaxWidth {
-                            self.rightMaxWidth = reminder.title.characters.count
+                        if reminder.title.count > self.rightMaxWidth {
+                            self.rightMaxWidth = reminder.title.count
                             //print("nui - rightMaxWidth = \(self.rightMaxWidth)")
                         }
 	                case 7,8,9:
 	                    self.uniItems[key] = reminder
-                        if reminder.title.characters.count > self.leftMaxWidth {
-                            self.leftMaxWidth = reminder.title.characters.count
+                        if reminder.title.count > self.leftMaxWidth {
+                            self.leftMaxWidth = reminder.title.count
                             //print("uni - leftMaxWidth = \(self.leftMaxWidth)")
                         }
 	                case 0:
 	                    self.nuniItems[key] = reminder
-                        if reminder.title.characters.count > self.rightMaxWidth {
-                            self.rightMaxWidth = reminder.title.characters.count
+                        if reminder.title.count > self.rightMaxWidth {
+                            self.rightMaxWidth = reminder.title.count
                             //print("nuni - rightMaxWidth = \(self.rightMaxWidth)")
                         }
 	                default:
@@ -174,7 +174,7 @@ class ReminderCache {
                 print("# Error: unrecognized priority (expected ui nui uni nuni)")
                 return
         }
-        for reminder in self.reminders as [EKReminder]! {
+        for reminder in self.reminders {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
@@ -194,7 +194,7 @@ class ReminderCache {
     }
 
     func delete_reminder(args:[String]) throws {
-        for reminder in self.reminders as [EKReminder]! {
+        for reminder in self.reminders {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
@@ -222,7 +222,7 @@ class ReminderCache {
     }
 
     func complete_reminder(args:[String]) throws {
-        for reminder in self.reminders as [EKReminder]! {
+        for reminder in self.reminders {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }

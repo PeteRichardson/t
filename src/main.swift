@@ -14,9 +14,9 @@ let priority_map = [
 ]
 
 do {
-	var view = EisenhowerConsoleView()
+	let view = EisenhowerConsoleView()
 
-    var remCache = ReminderCache()
+    let remCache = ReminderCache()
     
     var args = CommandLine.arguments
     args.remove(at:0)
