@@ -1,5 +1,4 @@
 import EventKit
-import Cncurses
 import Darwin.ncurses
 
 
@@ -35,7 +34,7 @@ public class EisenhowerConsoleView {
         var titleText:String = String(rem.priority) + " " + rem.title + String(repeating: " ", count: width)
         //print ("titleText width = \(titleText.characters.count)")
         let index = titleText.index(titleText.startIndex, offsetBy: width-4)
-        titleText = titleText.substring(to: index)
+        titleText = String(titleText[..<index])
         //print ("titleText width2 = \(titleText.characters.count)")
         let title = "\u{1B}[38;5;\(titleColor)m\(titleText)\u{1B}[m"
         return "\(completed)  \(hash) \(title)"

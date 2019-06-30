@@ -35,7 +35,7 @@ class ReminderCache {
         var fetched: Bool = false
         let cal = self.eventStore.defaultCalendarForNewReminders()
         
-        let predicate = self.eventStore.predicateForReminders(in: [cal])
+        let predicate = self.eventStore.predicateForReminders(in: [cal!])
         
         self.eventStore.fetchReminders(matching: predicate) { foundReminders in
             
@@ -109,7 +109,7 @@ class ReminderCache {
 
         do {
             try self.eventStore.save(reminder, commit:true);
-            print("Added reminder: \(reminder.title)")
+            print("Added reminder: \(reminder.title as Optional)")
         } catch {
             print("Failed to add reminder!")
         }
@@ -232,7 +232,7 @@ class ReminderCache {
                 if hash == key {
                     reminder.isCompleted = true
                     try self.eventStore.save(reminder, commit:true);
-                    print("Completed reminder: \(reminder.title)")
+                    print("Completed reminder: \(reminder.title as Optional)")
                 }
             }
         }
