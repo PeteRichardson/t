@@ -46,14 +46,14 @@ public class EisenhowerConsoleView {
         //print("width2 (rightcols) = \(width2)")
 
         let rowCount = list1.count > list2.count ? list1.count : list2.count
-        var sortedList1 = list1.values.sorted() { (r1, r2) in
+        let sortedList1 = list1.values.sorted() { (r1, r2) in
             if r1.isCompleted == r2.isCompleted {
                 return r1.priority < r2.priority
             } else {
                 return r2.isCompleted
             }
         }
-        var sortedList2 = list2.values.sorted() { (r1, r2) in
+        let sortedList2 = list2.values.sorted() { (r1, r2) in
             if r1.isCompleted == r2.isCompleted {
                 return r1.priority < r2.priority
             } else {
