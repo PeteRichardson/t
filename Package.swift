@@ -9,7 +9,11 @@ let package = Package(
     ],
     targets: [
         .systemLibrary(name: "ncurses", path:"Sources/ncurses"),
-        .target( name: "t", dependencies: ["ncurses"]),
+        .target(
+            name: "t",
+            dependencies: ["ncurses"],
+            linkerSettings: [.linkedLibrary("ncurses", .when(platforms: [.linux, .macOS]))]
+        ),
     ]
 )
 
