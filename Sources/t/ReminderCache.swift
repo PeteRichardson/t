@@ -3,18 +3,7 @@ import EventKit
 
 typealias ReminderDict = [String: EKReminder]
 
-let priority_map = [
-	"uih":  1,
-	"ui":   2,
-	"uil":  3,
-	"nuih": 4,
-	"nui":  5,
-	"nuil": 6,
-	"unih": 7,
-	"uni":  8,
-	"unil": 9,
-	"nuni": 0
-]
+
 
 class ReminderCache {
     var eventStore: EKEventStore
@@ -22,12 +11,11 @@ class ReminderCache {
     var leftMaxWidth:Int = 0
     var rightMaxWidth:Int = 0
     
-    var uiItems:   ReminderDict { get { remindersWithPriorities(1...3) } }
-    var nuiItems:  ReminderDict { get { remindersWithPriorities(4...6) } }
-    var uniItems:  ReminderDict { get { remindersWithPriorities(7...9) } }
-    var nuniItems: ReminderDict { get { remindersWithPriorities(0...0) } }
+    var uiItems:   ReminderDict { get { remindersWithPriorities(1...3) } }  // urgent and important items
+    var nuiItems:  ReminderDict { get { remindersWithPriorities(4...6) } }  // not urgent but important items
+    var uniItems:  ReminderDict { get { remindersWithPriorities(7...9) } }  // urgent but not important items
+    var nuniItems: ReminderDict { get { remindersWithPriorities(0...0) } }  // not urgent and not important items
 
- 
     init() {
 	    self.eventStore = EKEventStore()
 	    eventStore.requestAccess(to: EKEntityType.reminder, completion: {
@@ -103,8 +91,7 @@ class ReminderCache {
         }
 
         do {
-            try self.eventStore.save(reminder, commit:true);
-            print("Added reminder: \(reminder.title as Optional)")
+            try self.update_reminder(reminder: reminder, priority: priority)
         } catch {
             print("Failed to add reminder!")
         }
@@ -117,10 +104,8 @@ class ReminderCache {
         try self.eventStore.save(reminder, commit:true);
     }
 
-    func move_reminder(args:[String]) {
-        // first arg is new priority.   Rest are hashes of items to move
-
-        let priority:Int = priority_map[args[0]] ?? 0;
+    func move_reminder(args:[String], priority: Int) {
+        // args is list of item hashes to move to new priority
         for reminder in self.reminders.values {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
@@ -151,7 +136,6 @@ class ReminderCache {
                 if hash == key {
                     let title:String = reminder.title
                     try self.eventStore.remove(reminder, commit:true);
-                    print("Deleted reminder: \(title)")
                     self.reminders[hash] = nil
                 }
             }
@@ -169,7 +153,6 @@ class ReminderCache {
                 if hash == key {
                     reminder.isCompleted = true
                     try self.eventStore.save(reminder, commit:true);
-                    print("Completed reminder: \(reminder.title as Optional)")
                 }
             }
         }
