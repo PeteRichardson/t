@@ -1,6 +1,0 @@
-module ncurses 
-{
-    umbrella header "ncurses.h"
-    link "ncurses"
-    export *
-}

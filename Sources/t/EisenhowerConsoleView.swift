@@ -1,19 +1,20 @@
 import EventKit
-import Darwin.ncurses
+import Darwin
 
 
 public class EisenhowerConsoleView {
-	var cols:Int
+	var cols:Int = 80
 	var leftcols:Int
 	var rightcols:Int
 
 	init() {
-        // Use curses to figure out the width of the screen
-		initscr()
-		self.cols = Int(COLS)
-		self.leftcols = Int(Double(self.cols) * 0.5)
+        var w = winsize()
+        if ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 {
+            //print("rows:", w.ws_row, "cols", w.ws_col)
+            self.cols = Int(w.ws_col)
+        }
+        self.leftcols = Int(Double(self.cols) * 0.5)
 		self.rightcols = Int(self.cols) - self.leftcols
-		endwin()
         //print("cols = \(self.cols)")
         //print("leftcols = \(self.leftcols)")
         //print("rightcols = \(self.rightcols)")
