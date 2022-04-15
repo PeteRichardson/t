@@ -2,13 +2,54 @@
 import EventKit
 
 class ReminderCache {
-    var uiItems    = [String: EKReminder]()
-    var nuiItems   = [String: EKReminder]()
-    var uniItems   = [String: EKReminder]()
-    var nuniItems  = [String: EKReminder]()
+    var uiItems: [String: EKReminder] {
+        get {
+            var result = [String: EKReminder]()
+            for (hash, reminder) in self.reminders {
+                if [1, 2, 3].contains(where: { $0 == reminder.priority }) {
+                    result[hash] = reminder
+                }
+            }
+            return result
+        }
+    }
+
+    var nuiItems: [String: EKReminder] {
+        get {
+            var result = [String: EKReminder]()
+            for (hash, reminder) in self.reminders {
+                if [4, 5, 6].contains(where: { $0 == reminder.priority }) {
+                    result[hash] = reminder
+                }
+            }
+            return result
+        }
+    }
+    var uniItems: [String: EKReminder] {
+        get {
+            var result = [String: EKReminder]()
+            for (hash, reminder) in self.reminders {
+                if [7, 8, 9].contains(where: { $0 == reminder.priority }) {
+                    result[hash] = reminder
+                }
+            }
+            return result
+        }
+    }
+    var nuniItems: [String: EKReminder] {
+        get {
+            var result = [String: EKReminder]()
+            for (hash, reminder) in self.reminders {
+                if reminder.priority == 0 {
+                    result[hash] = reminder
+                }
+            }
+            return result
+        }
+    }
     var leftMaxWidth:Int
     var rightMaxWidth:Int
-    var reminders: [EKReminder]!
+    var reminders = [String: EKReminder]()
     
     var eventStore: EKEventStore
 
@@ -22,16 +63,12 @@ class ReminderCache {
 	    })
         self.leftMaxWidth = 0
         self.rightMaxWidth = 0
-        self.reminders = [EKReminder]()
         self.loadItems()
-        //print("leftMaxWidth = \(self.leftMaxWidth)")
-        //print("rightMaxWidth = \(self.rightMaxWidth)")
     }
     
     func loadItems() {
         self.leftMaxWidth = 0
         self.rightMaxWidth = 0
-        self.reminders = [EKReminder]()
         var fetched: Bool = false
         let cal = self.eventStore.defaultCalendarForNewReminders()
         
@@ -39,38 +76,22 @@ class ReminderCache {
         
         self.eventStore.fetchReminders(matching: predicate) { foundReminders in
             
-            self.reminders = foundReminders
-            
-            for reminder in self.reminders {
+            for reminder in foundReminders! {
+                
                 if (reminder.isCompleted) && (!reminder.completedToday) {
                     continue
                 }
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
+                self.reminders[key] = reminder
                 //print("len(\(reminder.title) = \(reminder.title.count)")
                 switch (reminder.priority) {
-	                case 1,2,3:
-	                    self.uiItems[key] = reminder
+	                case 1,2,3,7,8,9:
                         if reminder.title.count > self.leftMaxWidth {
                             self.leftMaxWidth = reminder.title.count
-                            //print("ui - leftMaxWidth = \(self.leftMaxWidth)")
                         }
-	                case 4,5,6:
-	                    self.nuiItems[key] = reminder
+	                case 0,4,5,6:
                         if reminder.title.count > self.rightMaxWidth {
                             self.rightMaxWidth = reminder.title.count
-                            //print("nui - rightMaxWidth = \(self.rightMaxWidth)")
-                        }
-	                case 7,8,9:
-	                    self.uniItems[key] = reminder
-                        if reminder.title.count > self.leftMaxWidth {
-                            self.leftMaxWidth = reminder.title.count
-                            //print("uni - leftMaxWidth = \(self.leftMaxWidth)")
-                        }
-	                case 0:
-	                    self.nuniItems[key] = reminder
-                        if reminder.title.count > self.rightMaxWidth {
-                            self.rightMaxWidth = reminder.title.count
-                            //print("nuni - rightMaxWidth = \(self.rightMaxWidth)")
                         }
 	                default:
 	                    print("Unexpected priority");
@@ -117,32 +138,9 @@ class ReminderCache {
 
     func update_reminder(reminder: EKReminder, priority:Int) throws {
         let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-        switch (reminder.priority) {
-            case 1,2,3:
-                self.uiItems[key] = nil
-            case 4,5,6:
-                self.nuiItems[key] = nil
-            case 7,8,9:
-                self.uniItems[key] = nil
-            case (0):
-                self.nuniItems[key] = nil
-            default:
-                print("Unexpected priority");
-        }
+        self.reminders[key] = reminder
         reminder.priority = priority
         try self.eventStore.save(reminder, commit:true);
-        switch (reminder.priority) {
-            case 1,2,3:
-                self.uiItems[key] = reminder
-            case 4,5,6:
-                self.nuiItems[key] = reminder
-            case 7,8,9:
-                self.uniItems[key] = reminder
-            case (0):
-                self.nuniItems[key] = reminder
-            default:
-                print("Unexpected priority");
-        }
     }
 
     func move_reminder(args:[String]) {
@@ -174,7 +172,7 @@ class ReminderCache {
                 print("# Error: unrecognized priority (expected ui nui uni nuni)")
                 return
         }
-        for reminder in self.reminders {
+        for reminder in self.reminders.values {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
@@ -194,7 +192,7 @@ class ReminderCache {
     }
 
     func delete_reminder(args:[String]) throws {
-        for reminder in self.reminders {
+        for reminder in self.reminders.values {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
@@ -205,24 +203,14 @@ class ReminderCache {
                     let title:String = reminder.title
                     try self.eventStore.remove(reminder, commit:true);
                     print("Deleted reminder: \(title)")
-
-                    if let _ : EKReminder = self.uiItems[hash] {
-                        self.uiItems[hash] = nil
-                    } else if let _ : EKReminder = self.nuiItems[hash] {
-                        self.nuiItems[hash] = nil
-                    } else if let _ : EKReminder = self.uniItems[hash] {
-                        self.uniItems[hash] = nil
-                    } else if let _ : EKReminder = self.nuniItems[hash] {
-                        self.nuniItems[hash] = nil
-                    }
-
+                    self.reminders[hash] = nil
                 }
             }
         }
     }
 
     func complete_reminder(args:[String]) throws {
-        for reminder in self.reminders {
+        for reminder in self.reminders.values {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
             }
