@@ -1,79 +1,53 @@
 
 import EventKit
 
+typealias ReminderDict = [String: EKReminder]
+
+let priority_map = [
+	"uih":  1,
+	"ui":   2,
+	"uil":  3,
+	"nuih": 4,
+	"nui":  5,
+	"nuil": 6,
+	"unih": 7,
+	"uni":  8,
+	"unil": 9,
+	"nuni": 0
+]
+
 class ReminderCache {
-    var uiItems: [String: EKReminder] {
-        get {
-            var result = [String: EKReminder]()
-            for (hash, reminder) in self.reminders {
-                if [1, 2, 3].contains(where: { $0 == reminder.priority }) {
-                    result[hash] = reminder
-                }
-            }
-            return result
-        }
-    }
-
-    var nuiItems: [String: EKReminder] {
-        get {
-            var result = [String: EKReminder]()
-            for (hash, reminder) in self.reminders {
-                if [4, 5, 6].contains(where: { $0 == reminder.priority }) {
-                    result[hash] = reminder
-                }
-            }
-            return result
-        }
-    }
-    var uniItems: [String: EKReminder] {
-        get {
-            var result = [String: EKReminder]()
-            for (hash, reminder) in self.reminders {
-                if [7, 8, 9].contains(where: { $0 == reminder.priority }) {
-                    result[hash] = reminder
-                }
-            }
-            return result
-        }
-    }
-    var nuniItems: [String: EKReminder] {
-        get {
-            var result = [String: EKReminder]()
-            for (hash, reminder) in self.reminders {
-                if reminder.priority == 0 {
-                    result[hash] = reminder
-                }
-            }
-            return result
-        }
-    }
-    var leftMaxWidth:Int
-    var rightMaxWidth:Int
-    var reminders = [String: EKReminder]()
-    
     var eventStore: EKEventStore
+    var reminders = ReminderDict()
+    var leftMaxWidth:Int = 0
+    var rightMaxWidth:Int = 0
+    
+    var uiItems:   ReminderDict { get { remindersWithPriorities(1...3) } }
+    var nuiItems:  ReminderDict { get { remindersWithPriorities(4...6) } }
+    var uniItems:  ReminderDict { get { remindersWithPriorities(7...9) } }
+    var nuniItems: ReminderDict { get { remindersWithPriorities(0...0) } }
 
+ 
     init() {
 	    self.eventStore = EKEventStore()
 	    eventStore.requestAccess(to: EKEntityType.reminder, completion: {
 	        (granted, error) in
-	        if (granted) && (error == nil) {
-	            //print("Access granted!")
+	        if (!granted) || (error != nil) {
+	            print("Reminder access denied!")
+                exit(EXIT_FAILURE)
 	        }
 	    })
-        self.leftMaxWidth = 0
-        self.rightMaxWidth = 0
         self.loadItems()
     }
     
     func loadItems() {
         self.leftMaxWidth = 0
         self.rightMaxWidth = 0
+
         var fetched: Bool = false
         let cal = self.eventStore.defaultCalendarForNewReminders()
         
         let predicate = self.eventStore.predicateForReminders(in: [cal!])
-        
         self.eventStore.fetchReminders(matching: predicate) { foundReminders in
             
             for reminder in foundReminders! {
@@ -146,32 +120,7 @@ class ReminderCache {
     func move_reminder(args:[String]) {
         // first arg is new priority.   Rest are hashes of items to move
 
-        var priority:Int = 0;
-        switch (args[0]) {
-            case "uih":
-                priority = 1
-            case "ui":
-                priority = 2
-            case "uil":
-                priority = 3
-            case "nuih":
-                priority = 4
-            case "nui":
-                priority = 5
-            case "nuil":
-                priority = 6
-            case "unih":
-                priority = 7
-            case "uni":
-                priority = 8
-            case "unil":
-                priority = 9
-            case "nuni":
-                priority = 0
-            default:
-                print("# Error: unrecognized priority (expected ui nui uni nuni)")
-                return
-        }
+        let priority:Int = priority_map[args[0]] ?? 0;
         for reminder in self.reminders.values {
             if (reminder.isCompleted) && (!reminder.completedToday) {
                 continue
@@ -225,5 +174,13 @@ class ReminderCache {
             }
         }
     }
+
+    // Return a dict of Reminders with priorities in the specied range
+    func remindersWithPriorities(_ range: ClosedRange<Int>) -> ReminderDict {
+        return self.reminders.filter { _, reminder in
+                return range.contains(reminder.priority)
+        }
+    }
+
 
 }

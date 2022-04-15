@@ -15,9 +15,6 @@ public class EisenhowerConsoleView {
         }
         self.leftcols = Int(Double(self.cols) * 0.5)
 		self.rightcols = Int(self.cols) - self.leftcols
-        //print("cols = \(self.cols)")
-        //print("leftcols = \(self.leftcols)")
-        //print("rightcols = \(self.rightcols)")
 	}
 
     func format(rem: EKReminder, width: Int) -> String {
@@ -26,26 +23,18 @@ public class EisenhowerConsoleView {
         let titleColorNotCompleted = 255
         let titleColorCompleted = 238
 
-        //print("width = \(width)")
-
-
         let completed : String = rem.isCompleted ? "\u{1B}[38;5;\(checkColor)m✔\u{1B}[m" : " "
         let hash = String(format:"\u{1B}[38;5;\(hashColor)m%03X\u{1B}[m", rem.hash & 0xFFF)
         let titleColor:Int = rem.isCompleted ? titleColorCompleted : titleColorNotCompleted
         var titleText:String = String(rem.priority) + " " + rem.title + String(repeating: " ", count: width)
-        //print ("titleText width = \(titleText.characters.count)")
         let index = titleText.index(titleText.startIndex, offsetBy: width-4)
         titleText = String(titleText[..<index])
-        //print ("titleText width2 = \(titleText.characters.count)")
         let title = "\u{1B}[38;5;\(titleColor)m\(titleText)\u{1B}[m"
         return "\(completed)  \(hash) \(title)"
     }
 
 
-	func list_reminders_side_by_side(list1: [String: EKReminder], list2: [String: EKReminder], width1: Int, width2: Int) {
-        //print("width1 (leftcols) = \(width1)")
-        //print("width2 (rightcols) = \(width2)")
-
+	func list_reminders_side_by_side(list1: ReminderDict, list2: ReminderDict, width1: Int, width2: Int) {
         let rowCount = list1.count > list2.count ? list1.count : list2.count
         let sortedList1 = list1.values.sorted() { (r1, r2) in
             if r1.isCompleted == r2.isCompleted {
@@ -76,22 +65,18 @@ public class EisenhowerConsoleView {
     }
 
     // Given the four separate lists, dump them to the console.
-	func display(uiItems: [String: EKReminder], nuiItems: [String: EKReminder], uniItems: [String: EKReminder], nuniItems: [String: EKReminder], leftMaxWidth: Int, rightMaxWidth: Int) {
+	func display(uiItems: ReminderDict, nuiItems: ReminderDict, uniItems: ReminderDict, nuniItems: ReminderDict, leftMaxWidth: Int, rightMaxWidth: Int) {
         // Use box drawing characters to make a prettier border around the lists.
         // see https://en.wikipedia.org/wiki/Box-drawing_character
         if leftMaxWidth < self.leftcols {
             self.leftcols = leftMaxWidth
-            //print("reset leftcols = \(self.leftcols)")
         }
         if rightMaxWidth < self.rightcols {
             self.rightcols = rightMaxWidth
-            //print("reset rightcols = \(self.rightcols)")
         }
         if leftMaxWidth + rightMaxWidth <= self.cols {
             self.leftcols = leftMaxWidth
             self.rightcols = rightMaxWidth
-            //print("reset again leftcols = \(self.leftcols)")
-            //print("reset again rightcols = \(self.rightcols)")
        }
 
         let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols - 2)
