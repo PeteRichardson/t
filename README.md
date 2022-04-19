@@ -4,7 +4,8 @@ a Swift cli tool using the mac Reminders db as a backend for Eisenhower method t
 
 ```usage: t [<command> <options>]```
 
-List or modify reminders on the default calendar
+List or modify reminders on the default calendar.
+
 Reminders are displayed in a four quadrant Eisenhower (urgent/important) matrix[^1]
 
 Run the tool with no arguments to list the current reminders.
