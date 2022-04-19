@@ -20,11 +20,11 @@ Examples:  ($ is the shell prompt)
 
 You can use other commands (c, d, and m) to mark reminder as Completed, or Delete it or Move it (i.e. change the priority), respectively.
 
-```$> t c 9d2        # marks the reminder with hash 9d2 as completed```
+```$ t c 9d2        # marks the reminder with hash 9d2 as completed```
   
-```$> t d 9d2        # deletes the reminder with hash 9d2```
+```$ t d 9d2        # deletes the reminder with hash 9d2```
   
-```$> t m uni a28    # moves the reminder with hash a28 to priority uni```
+```$ t m uni a28    # moves the reminder with hash a28 to priority uni```
 
 
 The 'ui' string is a priority for the reminder, which determines which quadrant it appears in,
