@@ -36,7 +36,7 @@ func usage() {
 	print("#")
 	print("# Available priorities are: ")
 	print("#    uih   - priority 1: urgent & important (high)       [DO these tasks!]")
-	print("#    ui    - priority 2: urgent & important (normal)     [DO  these tasks]")
+	print("#    ui    - priority 2: urgent & important (normal)     [DO these tasks]")
 	print("#    uil   - priority 3: urgent & important (low)        [DO these tasks]")
 	print("#    nuih  - priority 4: not urgent & important (high)   [PLAN these tasks]")
 	print("#    nui   - priority 5: not urgent & important (normal) [PLAN these tasks]")
