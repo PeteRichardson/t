@@ -14,7 +14,8 @@ For example:
  <img width="663" alt="image" src="https://user-images.githubusercontent.com/979694/163906245-8c8ca78e-f981-4be9-a267-a7553098b382.png">
 
 Examples:  ($ is the shell prompt)
-  $ t ui Change Netflix password     # adds an urgent, important reminder to change your password
+
+```$ t ui Change Netflix password     # adds an urgent, important reminder to change your password```
 
 You can use other commands (c, d, and m) to mark reminder as Completed, or Delete it or Move it (i.e. change the priority), respectively.
 
