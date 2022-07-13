@@ -9,19 +9,24 @@ public func <(lhs: NSDate, rhs: NSDate) -> Bool {
     return lhs.compare(rhs as Date) == .orderedAscending
 }
 
-extension EKReminder {    
+extension EKReminder {
+    
+    /**
+     Returns whether the reminder was completed today
+     
+     - Algorithm: compare date components (.year, .month, .day)
+     
+     - Returns: True if date components all match
+                False if date components do not match or if reminder has no completion date
+     */
     public var completedToday: Bool {
-		let calendar = NSCalendar.current
+        guard let completionDate = completionDate else {
+            return false
+        }
+        
+        let completion = NSCalendar.current.dateComponents([.year, .month, .day], from: completionDate)
+        let today      = NSCalendar.current.dateComponents([.year, .month, .day], from: Date())
 
-		let completionyear  = calendar.component(.year,  from: self.completionDate! as Date)
-		let completionmonth = calendar.component(.month, from: self.completionDate! as Date)
-		let completionday   = calendar.component(.day,   from: self.completionDate! as Date)
-
-		let today  = NSDate()
-		let year  = calendar.component(.year, from: today as Date)
-		let month = calendar.component(.month, from: today as Date)
-		let day   = calendar.component(.day, from: today as Date)
-
-		return ((completionday == day) && (completionmonth == month) && (completionyear == year))
+        return completion == today
     }
 }
