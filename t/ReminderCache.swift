@@ -134,7 +134,6 @@ class ReminderCache {
                 let hash = arg.uppercased()
                 let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
                 if hash == key {
-                    let title:String = reminder.title
                     try self.eventStore.remove(reminder, commit:true);
                     self.reminders[hash] = nil
                 }
