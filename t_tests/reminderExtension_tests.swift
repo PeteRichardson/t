@@ -13,8 +13,8 @@ final class reminderExtension_tests: XCTestCase {
      Expect that a reminder completed more than 24 hours ago was NOT completed today
      */
     func testCompletionDateFalse() throws {
-        let SECONDS_PER_DAY = 60 * 60 * 24 + 1
-        let yesterday = Date.init(timeIntervalSinceNow: TimeInterval(-SECONDS_PER_DAY))
+        let SECONDS_PER_DAY = 60 * 60 * 24
+        let yesterday = Date.init(timeIntervalSinceNow: TimeInterval( -(SECONDS_PER_DAY+1) )) // 24hrs + 1 second ago
         
         let reminder = EKReminder(eventStore: EKEventStore())
         reminder.completionDate = yesterday
