@@ -56,34 +56,41 @@ func usage() {
 
 do {
     let remCache = ReminderCache()    // load the reminders from the calendar
+    assert( remCache.reminders.values.filter { $0.isCompleted && !$0.completedToday }.count == 0,
+            "in \(#function), all reminders should be not completed or completed today!")
     
+
     var args = CommandLine.arguments
     args.remove(at:0)
     if args.count > 0 {
-    	let words = Array(args.suffix(args.count-1))
-    	let command = args[0].lowercased()
+    	let words = Array(args.dropFirst())
+        let command = args.first?.lowercased() ?? "unknown"
         switch command {
 			case "h":
 				usage()
 				exit(EXIT_SUCCESS)
 	        case "c":
-	            try remCache.complete_reminder(args: args)
+                try remCache.completeReminders(hashes: words.map { $0.uppercased() })
 	        case "d":
-	            try remCache.delete_reminder(args: args)
+                try remCache.deleteReminders(  hashes: words.map { $0.uppercased() })
 	        case "m":
 				let priority = EisenhowerConsoleView.priority_map[words[0]]!
-	            remCache.move_reminder(args: words.suffix(words.count-1), priority: priority)
+                try remCache.moveReminders(    hashes: words.dropFirst().map { $0.uppercased() }, priority: priority)
 	        case "uih", "ui", "uil", "nuih", "nui", "nuil", "unih", "uni", "unil", "nuni",
 	        	 "1",   "2",  "3",   "4",    "5",   "6",    "7",    "8",   "9",    "0":		// Can pass text or number
-	            remCache.add_reminder (args: words,  priority: EisenhowerConsoleView.priority_map[command]!)
+                let title = words.joined(separator: " ")
+	            try remCache.addReminder (title: title,  priority: EisenhowerConsoleView.priority_map[command]!)
 	        default:
-	            remCache.add_reminder (args: args, priority: 0)
+                let title = words.joined(separator: " ")
+	            try remCache.addReminder (title: title, priority: 0)
         }
     }
     
 	let view = EisenhowerConsoleView(reminders: remCache)
 	view.display()
 
+} catch ReminderCache.Error.EmptyTitleError {
+    print("# Error: can't add reminder with empty title.")
 } catch {
-    print("Something is wrong")
+    print("Something is wrong, \(error)")
 }

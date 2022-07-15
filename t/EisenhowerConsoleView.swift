@@ -137,9 +137,17 @@ public class EisenhowerConsoleView {
         
         print("\u{1B}[m")
         print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")
-	    self.list_reminders_side_by_side(list1: self.remCache.uiItems, list2: self.remCache.nuiItems, width1:self.leftcols, width2:self.rightcols)
+	    self.list_reminders_side_by_side(
+            list1: self.remCache.reminders.uiItems,
+            list2: self.remCache.reminders.nuiItems,
+            width1:self.leftcols,
+            width2:self.rightcols)
 	    print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
-	    self.list_reminders_side_by_side(list1: self.remCache.uniItems, list2:self.remCache.nuniItems, width1:self.leftcols, width2:self.rightcols)
+	    self.list_reminders_side_by_side(
+            list1: self.remCache.reminders.uniItems,
+            list2:self.remCache.reminders.nuniItems,
+            width1:self.leftcols,
+            width2:self.rightcols)
 	    print("\u{2570}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{256F}")
 
     }

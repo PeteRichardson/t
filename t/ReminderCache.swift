@@ -3,16 +3,27 @@ import EventKit
 
 typealias ReminderDict = [String: EKReminder]
 
+extension ReminderDict {
+    // Return a dict of Reminders with priorities in the specied range
+    func remindersWithPriorities(_ priorities: [Int]) -> ReminderDict {
+        return self.filter { _, reminder in
+                return priorities.contains(reminder.priority)
+        }
+    }
+    
+    var uiItems:   ReminderDict { get { remindersWithPriorities([1,2,3]) } }  // urgent and important items
+    var nuiItems:  ReminderDict { get { remindersWithPriorities([4,5,6]) } }  // not urgent but important items
+    var uniItems:  ReminderDict { get { remindersWithPriorities([7,8,9]) } }  // urgent but not important items
+    var nuniItems: ReminderDict { get { remindersWithPriorities(  [0]  ) } }  // not urgent and not important items
+}
+
 class ReminderCache {
+    enum Error : Swift.Error {
+        case EmptyTitleError
+    }
+    
     var eventStore: EKEventStore
     var reminders = ReminderDict()
-    var leftMaxWidth:Int = 0
-    var rightMaxWidth:Int = 0
-    
-    var uiItems:   ReminderDict { get { remindersWithPriorities(1...3) } }  // urgent and important items
-    var nuiItems:  ReminderDict { get { remindersWithPriorities(4...6) } }  // not urgent but important items
-    var uniItems:  ReminderDict { get { remindersWithPriorities(7...9) } }  // urgent but not important items
-    var nuniItems: ReminderDict { get { remindersWithPriorities(0...0) } }  // not urgent and not important items
 
     init() {
 	    self.eventStore = EKEventStore()
@@ -40,86 +51,54 @@ class ReminderCache {
         Thread.sleep(forTimeInterval: 0.08)
     }
     
-    func add_reminder(args:[String], priority:Int) {
-        let reminder = EKReminder(eventStore: self.eventStore)
-        reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
-        
-        reminder.title = args.joined(separator: " ")
-        reminder.priority = priority
-        if reminder.title.isEmpty {
-            print("# Error: Can't add empty reminder")
-            return
-        }
-
-        do {
-            try self.update_reminder(reminder: reminder, priority: priority)
-        } catch {
-            print("Failed to add reminder!")
-        }
-    }
-
-    func update_reminder(reminder: EKReminder, priority:Int) throws {
+    func updateReminder(reminder: EKReminder, priority:Int? = nil, isCompleted: Bool? = nil) throws {
         self.reminders[reminder.key] = reminder
-        reminder.priority = priority
+        if let priority {
+            reminder.priority = priority
+        }
+        if let isCompleted {
+            reminder.isCompleted = isCompleted
+        }
         try self.eventStore.save(reminder, commit:true);
     }
+    
+    func addReminder(title: String, priority:Int) throws {
+        guard (!title.isEmpty) else {
+            throw ReminderCache.Error.EmptyTitleError
+        }
+        
+        let reminder = EKReminder(eventStore: self.eventStore)
+        reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
+        reminder.title = title
+        reminder.priority = priority
 
-    func move_reminder(args:[String], priority: Int) {
-        // args is list of item hashes to move to new priority
-        for reminder in self.reminders.values {
-            if (reminder.isCompleted) && (!reminder.completedToday) {
-                continue
-            }
-            for arg in args[0..<args.count] {
-                let hash = arg.uppercased()
-                if hash == reminder.key {
-                    do {
-                        try self.update_reminder(reminder: reminder, priority: priority)
-                    } catch {
-                        print("Failed to move reminder!")
-                    }
+        try self.updateReminder(reminder: reminder, priority: priority)
+    }
 
-                }
+
+    func moveReminders(hashes: [String], priority: Int) throws {
+        for hash in hashes {
+            if let reminder = reminders[hash] {
+                try self.updateReminder(reminder: reminder, priority: priority)
             }
         }
     }
 
-    func delete_reminder(args:[String]) throws {
-        for reminder in self.reminders.values {
-            if (reminder.isCompleted) && (!reminder.completedToday) {
-                continue
-            }
-            for arg in args[0..<args.count] {
-                let hash = arg.uppercased()
-                if hash == reminder.key {
-                    try self.eventStore.remove(reminder, commit:true);
-                    self.reminders[hash] = nil
-                }
+    func deleteReminders(hashes:[String]) throws {
+        for hash in hashes {
+            if let reminder = reminders[hash] {
+                try self.eventStore.remove(reminder, commit:true)
+                self.reminders[hash] = nil
             }
         }
     }
 
-    func complete_reminder(args:[String]) throws {
-        for reminder in self.reminders.values {
-            if (reminder.isCompleted) && (!reminder.completedToday) {
-                continue
-            }
-            for arg in args[0..<args.count] {
-                let hash = arg.uppercased()
-                if hash == reminder.key {
-                    reminder.isCompleted = true
-                    try self.eventStore.save(reminder, commit:true);
-                }
-            }
+    func completeReminders(hashes:[String]) throws {
+        for hash in hashes {
+            if let reminder = reminders[hash] {
+                try self.updateReminder(reminder: reminder, isCompleted: true)
+             }
         }
     }
-
-    // Return a dict of Reminders with priorities in the specied range
-    func remindersWithPriorities(_ range: ClosedRange<Int>) -> ReminderDict {
-        return self.reminders.filter { _, reminder in
-                return range.contains(reminder.priority)
-        }
-    }
-
 
 }
