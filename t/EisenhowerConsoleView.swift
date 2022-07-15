@@ -6,6 +6,22 @@ public class EisenhowerConsoleView {
 	var cols:Int = 80
 	var leftcols:Int
 	var rightcols:Int
+    lazy var leftMaxWidth: Int = {
+        let longestLeftTitle = remCache.reminders.values
+            .filter { reminder in [1,2,3,7,8,9].contains(reminder.priority) }
+            .map { $0.title.count }
+            .max() ?? 0
+        let result = longestLeftTitle + 13
+        return result
+    }()
+    lazy var rightMaxWidth: Int = {
+        let longestRightTitle = remCache.reminders.values
+            .filter { reminder in [0,4,5,6].contains(reminder.priority) }
+            .map { $0.title.count }
+            .max() ?? 0
+        let result = longestRightTitle + 13
+        return result
+    }()
     var remCache: ReminderCache
 
     // Map strings to the 10 priority levels in Reminders
@@ -51,7 +67,6 @@ public class EisenhowerConsoleView {
         }
         self.leftcols = Int(Double(self.cols) * 0.5)
 		self.rightcols = Int(self.cols) - self.leftcols
-
         self.remCache = reminders
 	}
 
@@ -106,17 +121,17 @@ public class EisenhowerConsoleView {
 	func display() {
         // Use box drawing characters to make a prettier border around the lists.
         // see https://en.wikipedia.org/wiki/Box-drawing_character
-        if self.remCache.leftMaxWidth < self.leftcols {
-            self.leftcols = self.remCache.leftMaxWidth
+        if self.leftMaxWidth < self.leftcols {
+            self.leftcols = self.leftMaxWidth
         }
-        if self.remCache.rightMaxWidth < self.rightcols {
-            self.rightcols = self.remCache.rightMaxWidth
+        if self.rightMaxWidth < self.rightcols {
+            self.rightcols = self.rightMaxWidth
         }
-        if self.remCache.leftMaxWidth + self.remCache.rightMaxWidth <= self.cols {
-            self.leftcols = self.remCache.leftMaxWidth
-            self.rightcols = self.remCache.rightMaxWidth
+        if self.leftMaxWidth + self.rightMaxWidth <= self.cols {
+            self.leftcols = self.leftMaxWidth
+            self.rightcols = self.rightMaxWidth
        }
-
+        
         let leftcolborder = String(repeating: "\u{2500}", count: self.leftcols - 2)
         let rightcolborder = String(repeating: "\u{2500}", count: self.rightcols - 1)
         
@@ -126,5 +141,6 @@ public class EisenhowerConsoleView {
 	    print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
 	    self.list_reminders_side_by_side(list1: self.remCache.uniItems, list2:self.remCache.nuniItems, width1:self.leftcols, width2:self.rightcols)
 	    print("\u{2570}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{256F}")
-	}
+
+    }
 }

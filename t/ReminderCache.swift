@@ -3,8 +3,6 @@ import EventKit
 
 typealias ReminderDict = [String: EKReminder]
 
-
-
 class ReminderCache {
     var eventStore: EKEventStore
     var reminders = ReminderDict()
@@ -25,58 +23,21 @@ class ReminderCache {
                 exit(EXIT_FAILURE)
 	        }
 	    })
-        self.loadItems()
+        self.loadReminders()
     }
     
-    func loadItems() {
-        self.leftMaxWidth = 0
-        self.rightMaxWidth = 0
-
-        var fetched: Bool = false
+    func loadReminders() {
         let cal = self.eventStore.defaultCalendarForNewReminders()
-        
         let predicate = self.eventStore.predicateForReminders(in: [cal!])
         self.eventStore.fetchReminders(matching: predicate) { foundReminders in
-            
-            for reminder in foundReminders! {
-                
-                if (reminder.isCompleted) && (!reminder.completedToday) {
-                    continue
-                }
-                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-                self.reminders[key] = reminder
-                //print("len(\(reminder.title) = \(reminder.title.count)")
-                switch (reminder.priority) {
-	                case 1,2,3,7,8,9:
-                        if reminder.title.count > self.leftMaxWidth {
-                            self.leftMaxWidth = reminder.title.count
-                        }
-	                case 0,4,5,6:
-                        if reminder.title.count > self.rightMaxWidth {
-                            self.rightMaxWidth = reminder.title.count
-                        }
-	                default:
-	                    print("Unexpected priority");
-                }
+            guard let foundReminders else { return }
+            for reminder in foundReminders {
+                // only load reminders that are not completed or were completed today
+                guard !reminder.isCompleted || reminder.completedToday else { continue }
+                self.reminders[reminder.key] = reminder
             }
-            self.leftMaxWidth += 13
-            self.rightMaxWidth += 13
-            //print("after +13: leftMaxWidth = \(self.leftMaxWidth)")
-            //print("after +13:  rightMaxWidth = \(self.rightMaxWidth)")
-            fetched = true
         }
-        
-        
-        let interval : UInt32 = 2500    // ms  (passed to usleep())
-        let timeout : UInt32 = 11050000    // ms
-        var counter : UInt32 = 0
-        while !fetched && (counter < timeout) {
-            counter += interval
-            usleep(interval)
-        }
-        if !fetched {
-            print("Error:  unable to load calendar items")
-        }
+        Thread.sleep(forTimeInterval: 0.08)
     }
     
     func add_reminder(args:[String], priority:Int) {
@@ -98,8 +59,7 @@ class ReminderCache {
     }
 
     func update_reminder(reminder: EKReminder, priority:Int) throws {
-        let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-        self.reminders[key] = reminder
+        self.reminders[reminder.key] = reminder
         reminder.priority = priority
         try self.eventStore.save(reminder, commit:true);
     }
@@ -112,8 +72,7 @@ class ReminderCache {
             }
             for arg in args[0..<args.count] {
                 let hash = arg.uppercased()
-                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-                if hash == key {
+                if hash == reminder.key {
                     do {
                         try self.update_reminder(reminder: reminder, priority: priority)
                     } catch {
@@ -132,8 +91,7 @@ class ReminderCache {
             }
             for arg in args[0..<args.count] {
                 let hash = arg.uppercased()
-                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-                if hash == key {
+                if hash == reminder.key {
                     try self.eventStore.remove(reminder, commit:true);
                     self.reminders[hash] = nil
                 }
@@ -148,8 +106,7 @@ class ReminderCache {
             }
             for arg in args[0..<args.count] {
                 let hash = arg.uppercased()
-                let key:String = NSString(format:"%03X", reminder.hash & 0xFFF) as String
-                if hash == key {
+                if hash == reminder.key {
                     reminder.isCompleted = true
                     try self.eventStore.save(reminder, commit:true);
                 }

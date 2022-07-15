@@ -21,4 +21,8 @@ extension EKReminder {
         
         return NSCalendar.current.isDateInToday(completionDate)
     }
+    
+    public var key: String {
+        return NSString(format:"%03X", hash & 0xFFF) as String
+    }
 }
