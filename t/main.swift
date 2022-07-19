@@ -55,7 +55,7 @@ func usage() {
 }
 
 do {
-    let remCache = ReminderCache()    // load the reminders from the calendar
+    let remCache = await ReminderCache()    // load the reminders from the calendar
     assert( remCache.reminders.values.filter { $0.isCompleted && !$0.completedToday }.count == 0,
             "in \(#function), all reminders should be not completed or completed today!")
     

@@ -25,7 +25,7 @@ class ReminderCache {
     var eventStore: EKEventStore
     var reminders = ReminderDict()
 
-    init() {
+    init() async {
 	    self.eventStore = EKEventStore()
 	    eventStore.requestAccess(to: EKEntityType.reminder, completion: {
 	        (granted, error) in
@@ -34,21 +34,38 @@ class ReminderCache {
                 exit(EXIT_FAILURE)
 	        }
 	    })
-        self.loadReminders()
+        for reminder in await fetchReminders() {
+            self.reminders[reminder.key] = reminder
+        }
     }
     
-    func loadReminders() {
-        let cal = self.eventStore.defaultCalendarForNewReminders()
-        let predicate = self.eventStore.predicateForReminders(in: [cal!])
-        self.eventStore.fetchReminders(matching: predicate) { foundReminders in
-            guard let foundReminders else { return }
-            for reminder in foundReminders {
-                // only load reminders that are not completed or were completed today
-                guard !reminder.isCompleted || reminder.completedToday else { continue }
-                self.reminders[reminder.key] = reminder
-            }
+    
+    func fetchReminders() async -> [EKReminder] {
+        
+        // need an EKCalendar and an NSPredicate to fetchReminders.
+        guard let calendar = eventStore.defaultCalendarForNewReminders() else {
+            print("# ERROR: Could not get default calendar for new reminders!")
+            return []
         }
-        Thread.sleep(forTimeInterval: 0.08)
+        let predicate = eventStore.predicateForReminders(in: [calendar])
+        
+        /// Wrap old-style fetchReminders function (that takes a completion handler)
+        /// with an async block that uses a continuation.
+        return await withCheckedContinuation { continuation in
+            eventStore.fetchReminders(matching: predicate) { foundReminders in
+                guard let foundReminders else {
+                    continuation.resume(returning: [])
+                    return
+                }
+            
+                // This is our chance to filter/process the reminders before returning them.
+                let filteredReminders = foundReminders.filter { !$0.isCompleted || $0.completedToday }
+                continuation.resume(returning: filteredReminders)
+            }
+            // Careful! Every path in this withCheckedContinuation block
+            // _must_ resume() the continuation or memory will leak.
+            // Not a crisis in this short-lived app, but...
+        }
     }
     
     func updateReminder(reminder: EKReminder, priority:Int? = nil, isCompleted: Bool? = nil) throws {
