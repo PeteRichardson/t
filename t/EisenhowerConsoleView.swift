@@ -6,6 +6,9 @@ public class EisenhowerConsoleView {
 	var cols:Int = 80
 	var leftcols:Int
 	var rightcols:Int
+    // Note: these ...MaxWidth properties probably don't benefit from the lazy
+    // keyword.  They are each executed exactly once for each execution,
+    // and they aren't particularly slow.  User wouldn't notice.
     lazy var leftMaxWidth: Int = {
         let longestLeftTitle = remCache.reminders.values
             .filter { reminder in [1,2,3,7,8,9].contains(reminder.priority) }
