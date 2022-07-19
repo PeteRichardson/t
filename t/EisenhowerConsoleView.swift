@@ -77,7 +77,7 @@ public class EisenhowerConsoleView {
         let titleColorCompleted = 238
 
         let completed : String = rem.isCompleted ? "\u{1B}[38;5;\(checkColor)m✔\u{1B}[m" : " "
-        let hash = String(format:"\u{1B}[38;5;\(hashColor)m%03X\u{1B}[m", rem.hash & 0xFFF)
+        let hash = "\u{1B}[38;5;\(hashColor)m\(rem.key)\u{1B}[m"
         let titleColor:Int = rem.isCompleted ? titleColorCompleted : titleColorNotCompleted
         var titleText:String = String(rem.priority) + " " + rem.title + String(repeating: " ", count: width)
         let index = titleText.index(titleText.startIndex, offsetBy: width-4)

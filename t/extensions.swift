@@ -22,7 +22,11 @@ extension EKReminder {
         return NSCalendar.current.isDateInToday(completionDate)
     }
     
+    /**
+     Convenient human-readable/typable key
+     First three chars of String repr of hash
+     */
     public var key: String {
-        return NSString(format:"%03X", hash & 0xFFF) as String
+        return String(calendarItemIdentifier.prefix(3))
     }
 }
