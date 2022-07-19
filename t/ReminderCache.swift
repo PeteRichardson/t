@@ -7,7 +7,7 @@ extension ReminderDict {
     // Return a dict of Reminders with priorities in the specied range
     func remindersWithPriorities(_ priorities: [Int]) -> ReminderDict {
         return self.filter { _, reminder in
-                return priorities.contains(reminder.priority)
+            return priorities.contains(reminder.priority)
         }
     }
     
@@ -24,48 +24,58 @@ class ReminderCache {
     
     var eventStore: EKEventStore
     var reminders = ReminderDict()
-
+    
     init() async {
-	    self.eventStore = EKEventStore()
-	    eventStore.requestAccess(to: EKEntityType.reminder, completion: {
-	        (granted, error) in
-	        if (!granted) || (error != nil) {
-	            print("Reminder access denied!")
+        self.eventStore = EKEventStore()
+        eventStore.requestAccess(to: EKEntityType.reminder, completion: {
+            (granted, error) in
+            if (!granted) || (error != nil) {
+                print("Reminder access denied!")
                 exit(EXIT_FAILURE)
-	        }
-	    })
+            }
+        })
         for reminder in await fetchReminders() {
             self.reminders[reminder.key] = reminder
         }
     }
     
+    /**
+     Given a predicate, return a (possibly empty) array of matching reminders.
+     Is Async.
+     Does not return nil.
+     
+     Algorithm: simple wrap old-style fetchReminders function (that takes a completion handler)
+     with an async block that uses a continuation.
+     */
+    func fetchReminders(matching predicate: NSPredicate) async -> [EKReminder] {
+        return await withCheckedContinuation { continuation in
+            eventStore.fetchReminders(matching: predicate) { foundReminders in
+                continuation.resume(returning: foundReminders)
+            }
+        } ?? []
+    }
     
+    /**
+     Get all open reminders and all reminders completed today.
+     */
     func fetchReminders() async -> [EKReminder] {
-        
         // need an EKCalendar and an NSPredicate to fetchReminders.
         guard let calendar = eventStore.defaultCalendarForNewReminders() else {
             print("# ERROR: Could not get default calendar for new reminders!")
-            return []
+            exit(EXIT_FAILURE)
         }
-        let predicate = eventStore.predicateForReminders(in: [calendar])
         
-        /// Wrap old-style fetchReminders function (that takes a completion handler)
-        /// with an async block that uses a continuation.
-        return await withCheckedContinuation { continuation in
-            eventStore.fetchReminders(matching: predicate) { foundReminders in
-                guard let foundReminders else {
-                    continuation.resume(returning: [])
-                    return
-                }
-            
-                // This is our chance to filter/process the reminders before returning them.
-                let filteredReminders = foundReminders.filter { !$0.isCompleted || $0.completedToday }
-                continuation.resume(returning: filteredReminders)
-            }
-            // Careful! Every path in this withCheckedContinuation block
-            // _must_ resume() the continuation or memory will leak.
-            // Not a crisis in this short-lived app, but...
-        }
+        // Get any reminders that are not completed
+        let incompleteRemindersPredicate = eventStore.predicateForIncompleteReminders(withDueDateStarting: nil, ending: nil, calendars: [calendar])
+        let incompleteReminders = await fetchReminders(matching: incompleteRemindersPredicate)
+        
+        // Also get reminders that were completed today
+        let completedTodayPredicate = eventStore.predicateForCompletedReminders(withCompletionDateStarting: Calendar.current.startOfDay(for: Date.now),
+                                                                                ending: Date.now,
+                                                                                calendars: [calendar])
+        let completedTodayReminders = await fetchReminders(matching: completedTodayPredicate)
+        
+        return incompleteReminders + completedTodayReminders
     }
     
     func updateReminder(reminder: EKReminder, priority:Int? = nil, isCompleted: Bool? = nil) throws {
@@ -88,11 +98,11 @@ class ReminderCache {
         reminder.calendar = self.eventStore.defaultCalendarForNewReminders()
         reminder.title = title
         reminder.priority = priority
-
+        
         try self.updateReminder(reminder: reminder, priority: priority)
     }
-
-
+    
+    
     func moveReminders(hashes: [String], priority: Int) throws {
         for hash in hashes {
             if let reminder = reminders[hash] {
@@ -100,7 +110,7 @@ class ReminderCache {
             }
         }
     }
-
+    
     func deleteReminders(hashes:[String]) throws {
         for hash in hashes {
             if let reminder = reminders[hash] {
@@ -109,13 +119,13 @@ class ReminderCache {
             }
         }
     }
-
+    
     func completeReminders(hashes:[String]) throws {
         for hash in hashes {
             if let reminder = reminders[hash] {
                 try self.updateReminder(reminder: reminder, isCompleted: true)
-             }
+            }
         }
     }
-
+    
 }
