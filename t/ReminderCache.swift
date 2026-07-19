@@ -27,13 +27,15 @@ class ReminderCache {
     
     init() async {
         self.eventStore = EKEventStore()
-        eventStore.requestAccess(to: EKEntityType.reminder, completion: {
-            (granted, error) in
-            if (!granted) || (error != nil) {
-                print("Reminder access denied!")
-                exit(EXIT_FAILURE)
+        let granted = await withCheckedContinuation { continuation in
+            eventStore.requestAccess(to: EKEntityType.reminder) { granted, error in
+                continuation.resume(returning: granted && error == nil)
             }
-        })
+        }
+        guard granted else {
+            print("Reminder access denied!")
+            exit(EXIT_FAILURE)
+        }
         for reminder in await fetchReminders() {
             self.reminders[reminder.key] = reminder
         }
