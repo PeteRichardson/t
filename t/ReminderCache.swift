@@ -4,17 +4,17 @@ import EventKit
 typealias ReminderDict = [String: EKReminder]
 
 extension ReminderDict {
-    // Return a dict of Reminders with priorities in the specied range
-    func remindersWithPriorities(_ priorities: [Int]) -> ReminderDict {
+    // Return a dict of Reminders whose priority falls in the given quadrant
+    func reminders(in quadrant: Priority.Quadrant) -> ReminderDict {
         return self.filter { _, reminder in
-            return priorities.contains(reminder.priority)
+            return Priority(rawValue: reminder.priority)?.quadrant == quadrant
         }
     }
-    
-    var uiItems:   ReminderDict { get { remindersWithPriorities([1,2,3]) } }  // urgent and important items
-    var nuiItems:  ReminderDict { get { remindersWithPriorities([4,5,6]) } }  // not urgent but important items
-    var uniItems:  ReminderDict { get { remindersWithPriorities([7,8,9]) } }  // urgent but not important items
-    var nuniItems: ReminderDict { get { remindersWithPriorities(  [0]  ) } }  // not urgent and not important items
+
+    var uiItems:   ReminderDict { get { reminders(in: .urgentImportant) } }        // urgent and important items
+    var nuiItems:  ReminderDict { get { reminders(in: .notUrgentImportant) } }     // not urgent but important items
+    var uniItems:  ReminderDict { get { reminders(in: .urgentNotImportant) } }     // urgent but not important items
+    var nuniItems: ReminderDict { get { reminders(in: .notUrgentNotImportant) } }  // not urgent and not important items
 }
 
 class ReminderCache {

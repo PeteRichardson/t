@@ -11,6 +11,7 @@
 		C15973D9287F3306003F8C28 /* ReminderCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D6287F3306003F8C28 /* ReminderCache.swift */; };
 		C15973DA287F3306003F8C28 /* EisenhowerConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D7287F3306003F8C28 /* EisenhowerConsoleView.swift */; };
 		C15973DB287F3306003F8C28 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D8287F3306003F8C28 /* extensions.swift */; };
+		14B3C8BBA99A03CDC0A21FEA /* Priority.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CFCD411F7DD0BCE2F12AC5 /* Priority.swift */; };
 		C15973E7287F3E67003F8C28 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D8287F3306003F8C28 /* extensions.swift */; };
 		C15973E9287F3E9F003F8C28 /* reminderExtension_tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973E8287F3E9F003F8C28 /* reminderExtension_tests.swift */; };
 /* End PBXBuildFile section */
@@ -33,6 +34,7 @@
 		C15973D6287F3306003F8C28 /* ReminderCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReminderCache.swift; sourceTree = "<group>"; };
 		C15973D7287F3306003F8C28 /* EisenhowerConsoleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EisenhowerConsoleView.swift; sourceTree = "<group>"; };
 		C15973D8287F3306003F8C28 /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
+		A3CFCD411F7DD0BCE2F12AC5 /* Priority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Priority.swift; sourceTree = "<group>"; };
 		C15973E0287F3E5B003F8C28 /* t_tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = t_tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C15973E8287F3E9F003F8C28 /* reminderExtension_tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = reminderExtension_tests.swift; sourceTree = "<group>"; };
 		C1A5DBA72DEA355A006B5FAF /* t.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = t.entitlements; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 				C15973D7287F3306003F8C28 /* EisenhowerConsoleView.swift */,
 				C15973D8287F3306003F8C28 /* extensions.swift */,
 				C15973CF287F30F8003F8C28 /* main.swift */,
+				A3CFCD411F7DD0BCE2F12AC5 /* Priority.swift */,
 				C15973D6287F3306003F8C28 /* ReminderCache.swift */,
 			);
 			path = t;
@@ -187,6 +190,7 @@
 				C15973D9287F3306003F8C28 /* ReminderCache.swift in Sources */,
 				C15973D0287F30F8003F8C28 /* main.swift in Sources */,
 				C15973DB287F3306003F8C28 /* extensions.swift in Sources */,
+				14B3C8BBA99A03CDC0A21FEA /* Priority.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
