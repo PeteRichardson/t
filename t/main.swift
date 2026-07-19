@@ -75,18 +75,14 @@ do {
                 try remCache.deleteReminders(  hashes: words.map { $0.uppercased() })
 	        case "m":
 				guard let priorityArg = words.first,
-				      let priority = EisenhowerConsoleView.priority_map[priorityArg] else {
+				      let priority = Priority(name: priorityArg) else {
 					print("# Error: 'm' requires a valid priority and at least one hash, e.g. t m ui a28")
 					exit(EXIT_FAILURE)
 				}
-                try remCache.moveReminders(    hashes: words.dropFirst().map { $0.uppercased() }, priority: priority)
-	        case "uih", "ui", "uil", "nuih", "nui", "nuil", "unih", "uni", "unil", "nuni",
-	        	 "1",   "2",  "3",   "4",    "5",   "6",    "7",    "8",   "9",    "0":		// Can pass text or number
+                try remCache.moveReminders(    hashes: words.dropFirst().map { $0.uppercased() }, priority: priority.rawValue)
+	        default:		// Can pass a priority name or number, e.g. "ui" or "2"; anything else defaults to priority 0
                 let title = words.joined(separator: " ")
-	            try remCache.addReminder (title: title,  priority: EisenhowerConsoleView.priority_map[command]!)
-	        default:
-                let title = words.joined(separator: " ")
-	            try remCache.addReminder (title: title, priority: 0)
+	            try remCache.addReminder (title: title, priority: Priority(name: command)?.rawValue ?? 0)
         }
     }
     

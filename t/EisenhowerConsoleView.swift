@@ -28,41 +28,16 @@ public class EisenhowerConsoleView {
     }()
     var remCache: ReminderCache
 
-    // Map strings to the 10 priority levels in Reminders
     // Priority values specify which quadrant the item appears in
-    // and the sorting inside the quadrant.
+    // and the sorting inside the quadrant. See Priority.swift for
+    // the name/digit -> quadrant mapping.
     //     uih (1)   |    nuih (4)
     //     ui  (2)   |    nui  (5)
     //     uil (3)   |    nuil (6)
     //   -----------------------
-    //     uih (7)   |     
+    //     uih (7)   |
     //     ui  (8)   |    nuni (0)
-    //     uil (9)   |     
-
-    static let priority_map = [
-        "uih":  1,         // urgent,     important (high)
-        "ui":   2,         // urgent,     important (normal)
-        "uil":  3,         // urgent,     important (low)
-        "nuih": 4,         // not urgent, important (high)
-        "nui":  5,         // not urgent, important (normal)
-        "nuil": 6,         // not urgent, important (low)
-        "unih": 7,         // urgent,     not important (high)
-        "uni":  8,         // urgent,     not important (normal)
-        "unil": 9,         // urgent,     not important (low)
-        "nuni": 0,         // not urgent, not important
-    
-        "1":    1,         // urgent,     important (high)
-        "2":    2,         // urgent,     important (normal)
-        "3":    3,         // urgent,     important (low)
-        "4":    4,         // not urgent, important (high)
-        "5":    5,         // not urgent, important (normal)
-        "6":    6,         // not urgent, important (low)
-        "7":    7,         // urgent,     not important (high)
-        "8":    8,         // urgent,     not important (normal)
-        "9":    9,         // urgent,     not important (low)
-        "0":    0          // not urgent, not important
-    ]
-
+    //     uil (9)   |
 
 	init(reminders: ReminderCache) {
         var w = winsize()
@@ -82,7 +57,7 @@ public class EisenhowerConsoleView {
      Made up of 4 fields:
         1. check box if completed
         2. a 3 digit hex hash
-        3. a 0-9 digit for priority (see priority_map above)
+        3. a 0-9 digit for priority (see Priority.swift)
         4. the reminder text (aka title)
 
      e.g. " ✔  A43 8 Eat Breakfast           "
