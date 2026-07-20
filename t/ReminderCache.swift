@@ -24,7 +24,16 @@ class ReminderCache {
     
     var eventStore: EKEventStore
     var reminders = ReminderDict()
-    
+
+    /**
+     Test-only initializer: bypasses the Reminders permission prompt and real EventKit fetch,
+     so tests can exercise cache logic without touching the user's actual Reminders data.
+     */
+    init(eventStore: EKEventStore, reminders: ReminderDict = ReminderDict()) {
+        self.eventStore = eventStore
+        self.reminders = reminders
+    }
+
     init() async {
         self.eventStore = EKEventStore()
         let granted = await withCheckedContinuation { continuation in

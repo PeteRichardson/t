@@ -13,6 +13,8 @@
 		C15973DB287F3306003F8C28 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D8287F3306003F8C28 /* extensions.swift */; };
 		C15973E7287F3E67003F8C28 /* extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D8287F3306003F8C28 /* extensions.swift */; };
 		C15973E9287F3E9F003F8C28 /* reminderExtension_tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973E8287F3E9F003F8C28 /* reminderExtension_tests.swift */; };
+		F30000012F0000000000F301 /* ReminderCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C15973D6287F3306003F8C28 /* ReminderCache.swift */; };
+		F30000022F0000000000F301 /* ReminderCache_tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30000032F0000000000F301 /* ReminderCache_tests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +37,7 @@
 		C15973D8287F3306003F8C28 /* extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = extensions.swift; sourceTree = "<group>"; };
 		C15973E0287F3E5B003F8C28 /* t_tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = t_tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C15973E8287F3E9F003F8C28 /* reminderExtension_tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = reminderExtension_tests.swift; sourceTree = "<group>"; };
+		F30000032F0000000000F301 /* ReminderCache_tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderCache_tests.swift; sourceTree = "<group>"; };
 		C1A5DBA72DEA355A006B5FAF /* t.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = t.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -90,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				C15973E8287F3E9F003F8C28 /* reminderExtension_tests.swift */,
+				F30000032F0000000000F301 /* ReminderCache_tests.swift */,
 			);
 			path = t_tests;
 			sourceTree = "<group>";
@@ -196,6 +200,8 @@
 			files = (
 				C15973E9287F3E9F003F8C28 /* reminderExtension_tests.swift in Sources */,
 				C15973E7287F3E67003F8C28 /* extensions.swift in Sources */,
+				F30000012F0000000000F301 /* ReminderCache.swift in Sources */,
+				F30000022F0000000000F301 /* ReminderCache_tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

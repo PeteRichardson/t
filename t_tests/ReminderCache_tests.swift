@@ -6,30 +6,119 @@
 //
 
 import XCTest
+import EventKit
 
 final class ReminderCache_tests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    private func reminder(priority: Int) -> EKReminder {
+        let reminder = EKReminder(eventStore: EKEventStore())
+        reminder.priority = priority
+        return reminder
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    // MARK: - remindersWithPriorities / quadrant accessors
+
+    func testRemindersWithPriorities_filtersToRequestedSet() throws {
+        let dict: ReminderDict = [
+            "aaa": reminder(priority: 1),
+            "bbb": reminder(priority: 4),
+            "ccc": reminder(priority: 7),
+            "ddd": reminder(priority: 0),
+        ]
+
+        let filtered = dict.remindersWithPriorities([1, 4])
+
+        XCTAssertEqual(Set(filtered.keys), Set(["aaa", "bbb"]))
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testUiItems_returnsPriorities1To3() throws {
+        let dict: ReminderDict = [
+            "aaa": reminder(priority: 1),
+            "bbb": reminder(priority: 2),
+            "ccc": reminder(priority: 3),
+            "decoy": reminder(priority: 4),
+        ]
+
+        XCTAssertEqual(Set(dict.uiItems.keys), Set(["aaa", "bbb", "ccc"]))
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testNuiItems_returnsPriorities4To6() throws {
+        let dict: ReminderDict = [
+            "aaa": reminder(priority: 4),
+            "bbb": reminder(priority: 5),
+            "ccc": reminder(priority: 6),
+            "decoy1": reminder(priority: 3),
+            "decoy2": reminder(priority: 7),
+        ]
+
+        XCTAssertEqual(Set(dict.nuiItems.keys), Set(["aaa", "bbb", "ccc"]))
+    }
+
+    func testUniItems_returnsPriorities7To9() throws {
+        let dict: ReminderDict = [
+            "aaa": reminder(priority: 7),
+            "bbb": reminder(priority: 8),
+            "ccc": reminder(priority: 9),
+            "decoy1": reminder(priority: 6),
+            "decoy2": reminder(priority: 0),
+        ]
+
+        XCTAssertEqual(Set(dict.uniItems.keys), Set(["aaa", "bbb", "ccc"]))
+    }
+
+    func testNuniItems_returnsPriority0Only() throws {
+        let dict: ReminderDict = [
+            "aaa": reminder(priority: 0),
+            "decoy1": reminder(priority: 1),
+            "decoy2": reminder(priority: 9),
+        ]
+
+        XCTAssertEqual(Set(dict.nuniItems.keys), Set(["aaa"]))
+    }
+
+    // MARK: - addReminder
+
+    func testAddReminder_emptyTitle_throwsEmptyTitleError() throws {
+        let cache = ReminderCache(eventStore: EKEventStore())
+
+        XCTAssertThrowsError(try cache.addReminder(title: "", priority: 1)) { error in
+            guard case ReminderCache.Error.EmptyTitleError = error else {
+                XCTFail("Expected EmptyTitleError, got \(error)")
+                return
+            }
         }
+    }
+
+    // MARK: - unknown-hash no-ops (moveReminders/deleteReminders/completeReminders)
+
+    func testMoveReminders_unknownHash_leavesCacheUnchanged() throws {
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), reminders: ["aaa": known])
+
+        try cache.moveReminders(hashes: ["zzz"], priority: 5)
+
+        XCTAssertEqual(cache.reminders.count, 1)
+        XCTAssertEqual(cache.reminders["aaa"]?.priority, 1)
+    }
+
+    func testDeleteReminders_unknownHash_leavesCacheUnchanged() throws {
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), reminders: ["aaa": known])
+
+        try cache.deleteReminders(hashes: ["zzz"])
+
+        XCTAssertEqual(cache.reminders.count, 1)
+        XCTAssertNotNil(cache.reminders["aaa"])
+    }
+
+    func testCompleteReminders_unknownHash_leavesCacheUnchanged() throws {
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), reminders: ["aaa": known])
+
+        try cache.completeReminders(hashes: ["zzz"])
+
+        XCTAssertEqual(cache.reminders.count, 1)
+        XCTAssertEqual(cache.reminders["aaa"]?.isCompleted, false)
     }
 
 }
