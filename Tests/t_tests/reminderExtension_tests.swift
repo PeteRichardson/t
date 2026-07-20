@@ -6,6 +6,7 @@
 
 import XCTest
 import EventKit
+@testable import t
 
 final class reminderExtension_tests: XCTestCase {
 

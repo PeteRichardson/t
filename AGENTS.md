@@ -11,23 +11,26 @@ reference it in subsequent commands.
 
 ## Build, run, test
 
-This is an Xcode project (`t.xcodeproj`); there is no Swift Package Manager manifest. The scheme
-is `t`. Build/run/test from the command line with:
+This is a Swift Package (`Package.swift`), built with SwiftPM. Sources live in `Sources/t/`, tests
+in `Tests/t_tests/`.
 
-- Build:  `xcodebuild -project t.xcodeproj -scheme t -configuration Debug build`
-- Run:    launch the built `t` binary, or run from Xcode. The tool needs Reminders access
+- Build:  `swift build` (debug) or `swift build -c release`
+- Run:    `swift run t` — or run the built binary directly. The tool needs Reminders access
           (entitlement `com.apple.security.personal-information.calendars`); first run triggers a
           macOS permission prompt.
-- Tests:  `xcodebuild test -project t.xcodeproj -scheme t -destination 'platform=macOS'`
-          NOTE: the shared scheme's `<Testables>` section is currently empty, so `xcodebuild test`
-          will not run the `t_tests` bundle until the test target is added to the scheme in Xcode
-          (Product > Scheme > Edit Scheme > Test). The test files live in `t_tests/`.
+- Tests:  `swift test`
+
+**Entitlements/codesigning:** plain `swift build`/`swift run` produce a binary with no code
+signature and no entitlements — Reminders access will not work reliably from it. Use `make build`
+(or `make release`) instead: it runs `swift build`, then ad-hoc codesigns the resulting binary
+with `t.entitlements` at the repo root. Use `swift build`/`swift run` for quick iteration on
+non-Reminders logic; use `make build`/`make release` when you need a working, entitled binary.
 
 Because the tool reads and writes the user's *real* Reminders database on the default reminders
 list, be careful running `c`/`d`/`m` commands during development — they complete, delete, and move
 real reminders.
 
-## CLI grammar (see `t/main.swift`)
+## CLI grammar (see `Sources/t/main.swift`)
 
 Invoked as `t [<command> <options>]`. With no args it just lists current reminders.
 - `t <priority> <title...>` — add a reminder. `<priority>` is a name (`uih`, `ui`, `uil`, `nuih`,
@@ -40,7 +43,7 @@ Invoked as `t [<command> <options>]`. With no args it just lists current reminde
 
 ## Architecture
 
-Four source files under `t/`:
+Source files under `Sources/t/`:
 
 - `main.swift` — entry point. Builds a `ReminderCache` (async), parses `CommandLine.arguments`,
   dispatches to cache mutators, then renders with `EisenhowerConsoleView`. Errors surface as
