@@ -7,6 +7,7 @@
 
 import XCTest
 import EventKit
+@testable import t
 
 final class ReminderCache_tests: XCTestCase {
 
@@ -16,17 +17,17 @@ final class ReminderCache_tests: XCTestCase {
         return reminder
     }
 
-    // MARK: - remindersWithPriorities / quadrant accessors
+    // MARK: - reminders(in:) / quadrant accessors
 
-    func testRemindersWithPriorities_filtersToRequestedSet() throws {
+    func testRemindersInQuadrant_filtersToRequestedQuadrant() throws {
         let dict: ReminderDict = [
             "aaa": reminder(priority: 1),
-            "bbb": reminder(priority: 4),
+            "bbb": reminder(priority: 2),
             "ccc": reminder(priority: 7),
             "ddd": reminder(priority: 0),
         ]
 
-        let filtered = dict.remindersWithPriorities([1, 4])
+        let filtered = dict.reminders(in: .urgentImportant)
 
         XCTAssertEqual(Set(filtered.keys), Set(["aaa", "bbb"]))
     }
