@@ -128,6 +128,39 @@ final class ReminderCache_tests: XCTestCase {
         XCTAssertEqual(Set(invalid.keys), Set(["ccc"]))
     }
 
+    // MARK: - partitionedByRecognizedPriority
+
+    func testPartitionedByRecognizedPriority_priorityInRange_isRecognized() throws {
+        let dict: ReminderDict = ["aaa": reminder(priority: 5)]
+
+        let (recognized, unrecognized) = dict.partitionedByRecognizedPriority()
+
+        XCTAssertEqual(Set(recognized.keys), Set(["aaa"]))
+        XCTAssertTrue(unrecognized.isEmpty)
+    }
+
+    func testPartitionedByRecognizedPriority_priorityOutOfRange_isUnrecognized() throws {
+        let dict: ReminderDict = ["aaa": reminder(priority: 42)]
+
+        let (recognized, unrecognized) = dict.partitionedByRecognizedPriority()
+
+        XCTAssertTrue(recognized.isEmpty)
+        XCTAssertEqual(Set(unrecognized.keys), Set(["aaa"]))
+    }
+
+    func testPartitionedByRecognizedPriority_mixedReminders_splitsCorrectly() throws {
+        let dict: ReminderDict = [
+            "aaa": reminder(priority: 1),
+            "bbb": reminder(priority: 99),
+            "ccc": reminder(priority: -1),
+        ]
+
+        let (recognized, unrecognized) = dict.partitionedByRecognizedPriority()
+
+        XCTAssertEqual(Set(recognized.keys), Set(["aaa"]))
+        XCTAssertEqual(Set(unrecognized.keys), Set(["bbb", "ccc"]))
+    }
+
     // MARK: - addReminder
 
     func testAddReminder_emptyTitle_throwsEmptyTitleError() throws {

@@ -66,6 +66,14 @@ do {
         remCache.reminders = validReminders
     }
 
+    // Reminders with a priority outside 0-9 (e.g. set by another app/import) don't map to any
+    // quadrant and would otherwise render nowhere with no indication anything was hidden.
+    let (recognizedReminders, unrecognizedReminders) = remCache.reminders.partitionedByRecognizedPriority()
+    if !unrecognizedReminders.isEmpty {
+        print("# Warning: excluded \(unrecognizedReminders.count) reminder(s) with unrecognized priority not shown: \(unrecognizedReminders.keys.sorted().joined(separator: ", "))")
+        remCache.reminders = recognizedReminders
+    }
+
     var args = CommandLine.arguments
     args.remove(at:0)
     if args.count > 0 {
