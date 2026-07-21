@@ -149,7 +149,7 @@ class ReminderCache {
         return incompleteReminders + completedTodayReminders
     }
     
-    func updateReminder(reminder: EKReminder, priority:Int? = nil, isCompleted: Bool? = nil) throws {
+    func updateReminder(reminder: EKReminder, priority:Int? = nil, isCompleted: Bool? = nil, commit: Bool = true) throws {
         self.reminders[reminder.key] = reminder
         if let priority {
             reminder.priority = priority
@@ -157,7 +157,7 @@ class ReminderCache {
         if let isCompleted {
             reminder.isCompleted = isCompleted
         }
-        try self.eventStore.save(reminder, commit:true);
+        try self.eventStore.save(reminder, commit: commit);
     }
     
     func addReminder(title: String, priority:Int) throws {
@@ -175,27 +175,42 @@ class ReminderCache {
     
     
     func moveReminders(hashes: [String], priority: Int) throws {
+        var didMutate = false
         for hash in hashes {
             if let reminder = reminders[hash] {
-                try self.updateReminder(reminder: reminder, priority: priority)
+                try self.updateReminder(reminder: reminder, priority: priority, commit: false)
+                didMutate = true
             }
         }
+        if didMutate {
+            try self.eventStore.commit()
+        }
     }
-    
+
     func deleteReminders(hashes:[String]) throws {
+        var didMutate = false
         for hash in hashes {
             if let reminder = reminders[hash] {
-                try self.eventStore.remove(reminder, commit:true)
+                try self.eventStore.remove(reminder, commit:false)
                 self.reminders[hash] = nil
+                didMutate = true
             }
         }
+        if didMutate {
+            try self.eventStore.commit()
+        }
     }
-    
+
     func completeReminders(hashes:[String]) throws {
+        var didMutate = false
         for hash in hashes {
             if let reminder = reminders[hash] {
-                try self.updateReminder(reminder: reminder, isCompleted: true)
+                try self.updateReminder(reminder: reminder, isCompleted: true, commit: false)
+                didMutate = true
             }
+        }
+        if didMutate {
+            try self.eventStore.commit()
         }
     }
     
