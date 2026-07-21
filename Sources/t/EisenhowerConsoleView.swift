@@ -12,7 +12,10 @@ public class EisenhowerConsoleView {
     // and they aren't particularly slow.  User wouldn't notice.
     lazy var leftMaxWidth: Int = {
         let longestLeftTitle = remCache.reminders.values
-            .filter { reminder in [1,2,3,7,8,9].contains(reminder.priority) }
+            .filter { reminder in
+                let quadrant = Priority(rawValue: reminder.priority)?.quadrant
+                return quadrant == .urgentImportant || quadrant == .urgentNotImportant
+            }
             .map { $0.title.count }
             .max() ?? 0
         let result = longestLeftTitle + 13
@@ -20,7 +23,10 @@ public class EisenhowerConsoleView {
     }()
     lazy var rightMaxWidth: Int = {
         let longestRightTitle = remCache.reminders.values
-            .filter { reminder in [0,4,5,6].contains(reminder.priority) }
+            .filter { reminder in
+                let quadrant = Priority(rawValue: reminder.priority)?.quadrant
+                return quadrant == .notUrgentImportant || quadrant == .notUrgentNotImportant
+            }
             .map { $0.title.count }
             .max() ?? 0
         let result = longestRightTitle + 13
