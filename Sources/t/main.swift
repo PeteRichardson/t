@@ -84,8 +84,16 @@ do {
 				usage()
 				exit(EXIT_SUCCESS)
 	        case "c":
+				guard !words.isEmpty else {
+					print("# Error: 'c' requires at least one hash, e.g. t c a28")
+					exit(EXIT_FAILURE)
+				}
                 try remCache.completeReminders(hashes: words.map { $0.uppercased() })
 	        case "d":
+				guard !words.isEmpty else {
+					print("# Error: 'd' requires at least one hash, e.g. t d a28")
+					exit(EXIT_FAILURE)
+				}
                 try remCache.deleteReminders(  hashes: words.map { $0.uppercased() })
 	        case "m":
 				guard let priorityArg = words.first,
