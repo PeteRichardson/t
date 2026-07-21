@@ -66,7 +66,7 @@ do {
     	let words = Array(args.dropFirst())
         let command = args.first?.lowercased() ?? "unknown"
         switch command {
-			case "h":
+			case "h", "-h", "--help":
 				usage()
 				exit(EXIT_SUCCESS)
 	        case "c":
