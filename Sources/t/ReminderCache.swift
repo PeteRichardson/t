@@ -35,6 +35,25 @@ extension ReminderDict {
         }
         return (valid, invalid)
     }
+    
+    /**
+     Build a ReminderDict keyed by `key(_:)` (defaults to `.key`), reporting any reminders whose
+     key collided with one already inserted (and were therefore dropped) instead of silently
+     overwriting them.
+     */
+    static func build(from reminders: [EKReminder], key: (EKReminder) -> String = { $0.key }) -> (dict: ReminderDict, collisions: [EKReminder]) {
+        var dict = ReminderDict()
+        var collisions: [EKReminder] = []
+        for reminder in reminders {
+            let k = key(reminder)
+            if dict[k] != nil {
+                collisions.append(reminder)
+            } else {
+                dict[k] = reminder
+            }
+        }
+        return (dict, collisions)
+    }
 }
 
 class ReminderCache {
@@ -65,8 +84,10 @@ class ReminderCache {
             print("Reminder access denied!")
             exit(EXIT_FAILURE)
         }
-        for reminder in await fetchReminders() {
-            self.reminders[reminder.key] = reminder
+        let (dict, collisions) = ReminderDict.build(from: await fetchReminders())
+        self.reminders = dict
+        if !collisions.isEmpty {
+            print("# WARNING: \(collisions.count) reminder(s) dropped due to a hash key collision")
         }
     }
     
