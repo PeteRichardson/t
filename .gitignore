@@ -7,3 +7,4 @@ Packages/
 t.sublime-workspace
 .swiftpm/
 .vscode/settings.json
+.claude/tmp/ # shared scratch dir for ephemeral Claude Code skill output
