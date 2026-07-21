@@ -54,6 +54,25 @@ extension ReminderDict {
         }
         return (dict, collisions)
     }
+
+    /**
+     Splits the dict by whether each reminder's `priority` maps to a known `Priority` case
+     (0-9). Reminders with a recognized priority come back as `recognized`; any with an
+     out-of-range priority (e.g. set by another app or import) come back as `unrecognized`
+     instead of silently matching no quadrant and never rendering.
+     */
+    func partitionedByRecognizedPriority() -> (recognized: ReminderDict, unrecognized: ReminderDict) {
+        var recognized = ReminderDict()
+        var unrecognized = ReminderDict()
+        for (key, reminder) in self {
+            if Priority(rawValue: reminder.priority) != nil {
+                recognized[key] = reminder
+            } else {
+                unrecognized[key] = reminder
+            }
+        }
+        return (recognized, unrecognized)
+    }
 }
 
 class ReminderCache {
