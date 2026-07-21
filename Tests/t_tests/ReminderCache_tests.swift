@@ -17,6 +17,13 @@ final class ReminderCache_tests: XCTestCase {
         return reminder
     }
 
+    private func reminder(isCompleted: Bool, completionDate: Date?) -> EKReminder {
+        let reminder = EKReminder(eventStore: EKEventStore())
+        reminder.isCompleted = isCompleted
+        reminder.completionDate = completionDate
+        return reminder
+    }
+
     // MARK: - reminders(in:) / quadrant accessors
 
     func testRemindersInQuadrant_filtersToRequestedQuadrant() throws {
@@ -75,6 +82,50 @@ final class ReminderCache_tests: XCTestCase {
         ]
 
         XCTAssertEqual(Set(dict.nuniItems.keys), Set(["aaa"]))
+    }
+
+    // MARK: - partitionedByLoadInvariant
+
+    func testPartitionedByLoadInvariant_incompleteReminder_isValid() throws {
+        let dict: ReminderDict = ["aaa": reminder(isCompleted: false, completionDate: nil)]
+
+        let (valid, invalid) = dict.partitionedByLoadInvariant()
+
+        XCTAssertEqual(Set(valid.keys), Set(["aaa"]))
+        XCTAssertTrue(invalid.isEmpty)
+    }
+
+    func testPartitionedByLoadInvariant_completedToday_isValid() throws {
+        let dict: ReminderDict = ["aaa": reminder(isCompleted: true, completionDate: Date())]
+
+        let (valid, invalid) = dict.partitionedByLoadInvariant()
+
+        XCTAssertEqual(Set(valid.keys), Set(["aaa"]))
+        XCTAssertTrue(invalid.isEmpty)
+    }
+
+    func testPartitionedByLoadInvariant_completedBeforeToday_isInvalid() throws {
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        let dict: ReminderDict = ["aaa": reminder(isCompleted: true, completionDate: yesterday)]
+
+        let (valid, invalid) = dict.partitionedByLoadInvariant()
+
+        XCTAssertTrue(valid.isEmpty)
+        XCTAssertEqual(Set(invalid.keys), Set(["aaa"]))
+    }
+
+    func testPartitionedByLoadInvariant_mixedReminders_splitsCorrectly() throws {
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        let dict: ReminderDict = [
+            "aaa": reminder(isCompleted: false, completionDate: nil),
+            "bbb": reminder(isCompleted: true, completionDate: Date()),
+            "ccc": reminder(isCompleted: true, completionDate: yesterday),
+        ]
+
+        let (valid, invalid) = dict.partitionedByLoadInvariant()
+
+        XCTAssertEqual(Set(valid.keys), Set(["aaa", "bbb"]))
+        XCTAssertEqual(Set(invalid.keys), Set(["ccc"]))
     }
 
     // MARK: - addReminder

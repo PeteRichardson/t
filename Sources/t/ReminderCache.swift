@@ -15,6 +15,26 @@ extension ReminderDict {
     var nuiItems:  ReminderDict { get { reminders(in: .notUrgentImportant) } }     // not urgent but important items
     var uniItems:  ReminderDict { get { reminders(in: .urgentNotImportant) } }     // urgent but not important items
     var nuniItems: ReminderDict { get { reminders(in: .notUrgentNotImportant) } }  // not urgent and not important items
+
+    /**
+     Splits the dict by the load invariant (every reminder should be either not completed,
+     or completed today). Reminders satisfying it come back as `valid`; any that don't
+     (e.g. completed on a previous day, which the load predicates shouldn't produce but
+     which external EventKit behavior could) come back as `invalid` instead of being
+     silently rendered or trapping the process.
+     */
+    func partitionedByLoadInvariant() -> (valid: ReminderDict, invalid: ReminderDict) {
+        var valid = ReminderDict()
+        var invalid = ReminderDict()
+        for (key, reminder) in self {
+            if !reminder.isCompleted || reminder.completedToday {
+                valid[key] = reminder
+            } else {
+                invalid[key] = reminder
+            }
+        }
+        return (valid, invalid)
+    }
 }
 
 class ReminderCache {

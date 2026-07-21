@@ -56,9 +56,15 @@ func usage() {
 
 do {
     let remCache = await ReminderCache()    // load the reminders from the calendar
-    assert( remCache.reminders.values.filter { $0.isCompleted && !$0.completedToday }.count == 0,
-            "in \(#function), all reminders should be not completed or completed today!")
-    
+
+    // Every loaded reminder should be either not completed, or completed today (see the
+    // two-predicate fetch in ReminderCache.fetchReminders()). This is checked here rather
+    // than trusted, because unlike `assert`, this check also runs in release builds.
+    let (validReminders, invalidReminders) = remCache.reminders.partitionedByLoadInvariant()
+    if !invalidReminders.isEmpty {
+        print("# Warning: excluded \(invalidReminders.count) reminder(s) completed before today: \(invalidReminders.keys.sorted().joined(separator: ", "))")
+        remCache.reminders = validReminders
+    }
 
     var args = CommandLine.arguments
     args.remove(at:0)
