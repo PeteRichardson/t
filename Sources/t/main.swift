@@ -114,5 +114,5 @@ do {
 } catch ReminderCache.Error.EmptyTitleError {
     print("# Error: can't add reminder with empty title.")
 } catch {
-    print("Something is wrong, \(error)")
+    print("# Something is wrong, \(error)")
 }

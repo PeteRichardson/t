@@ -100,7 +100,7 @@ class ReminderCache {
             }
         }
         guard granted else {
-            print("Reminder access denied!")
+            print("# Reminder access denied!")
             exit(EXIT_FAILURE)
         }
         let (dict, collisions) = ReminderDict.build(from: await fetchReminders())
