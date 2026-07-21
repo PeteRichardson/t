@@ -141,6 +141,30 @@ final class ReminderCache_tests: XCTestCase {
         }
     }
 
+    // MARK: - ReminderDict.build(from:) collision handling
+
+    func testBuild_noCollisions_keepsEveryReminder() throws {
+        let a = reminder(priority: 1)
+        let b = reminder(priority: 2)
+
+        let (dict, collisions) = ReminderDict.build(from: [a, b]) { $0 === a ? "aaa" : "bbb" }
+
+        XCTAssertEqual(Set(dict.keys), Set(["aaa", "bbb"]))
+        XCTAssertTrue(collisions.isEmpty)
+    }
+
+    func testBuild_collidingKey_dropsLaterReminderAndReportsIt() throws {
+        let first = reminder(priority: 1)
+        let second = reminder(priority: 2)
+
+        let (dict, collisions) = ReminderDict.build(from: [first, second]) { _ in "aaa" }
+
+        XCTAssertEqual(dict.count, 1)
+        XCTAssertTrue(dict["aaa"] === first)
+        XCTAssertEqual(collisions.count, 1)
+        XCTAssertTrue(collisions.first === second)
+    }
+
     // MARK: - unknown-hash no-ops (moveReminders/deleteReminders/completeReminders)
 
     func testMoveReminders_unknownHash_leavesCacheUnchanged() throws {
