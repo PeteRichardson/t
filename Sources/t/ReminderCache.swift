@@ -75,25 +75,43 @@ extension ReminderDict {
     }
 }
 
+/**
+ The subset of `EKEventStore` that mutates and persists a reminder. `EKEventStore` already
+ satisfies this structurally (see the extension below) -- the seam exists so tests can inject a
+ fake instead of touching the user's real Reminders database.
+ */
+protocol EventStoring {
+    func save(_ reminder: EKReminder, commit: Bool) throws
+    func remove(_ reminder: EKReminder, commit: Bool) throws
+    func commit() throws
+}
+
+extension EKEventStore: EventStoring {}
+
 class ReminderCache {
     enum Error : Swift.Error {
         case EmptyTitleError
     }
-    
+
     var eventStore: EKEventStore
+    var eventStoring: EventStoring
     var reminders = ReminderDict()
 
     /**
      Test-only initializer: bypasses the Reminders permission prompt and real EventKit fetch,
      so tests can exercise cache logic without touching the user's actual Reminders data.
+     `eventStoring` defaults to `eventStore` itself (real save/remove/commit calls); pass a fake
+     to also exercise the mutate-and-save happy path without touching real Reminders data.
      */
-    init(eventStore: EKEventStore, reminders: ReminderDict = ReminderDict()) {
+    init(eventStore: EKEventStore, eventStoring: EventStoring? = nil, reminders: ReminderDict = ReminderDict()) {
         self.eventStore = eventStore
+        self.eventStoring = eventStoring ?? eventStore
         self.reminders = reminders
     }
 
     init() async {
         self.eventStore = EKEventStore()
+        self.eventStoring = self.eventStore
         let granted = await withCheckedContinuation { continuation in
             eventStore.requestAccess(to: EKEntityType.reminder) { granted, error in
                 continuation.resume(returning: granted && error == nil)
@@ -157,7 +175,7 @@ class ReminderCache {
         if let isCompleted {
             reminder.isCompleted = isCompleted
         }
-        try self.eventStore.save(reminder, commit: commit);
+        try self.eventStoring.save(reminder, commit: commit);
     }
     
     func addReminder(title: String, priority:Int) throws {
@@ -183,7 +201,7 @@ class ReminderCache {
             }
         }
         if didMutate {
-            try self.eventStore.commit()
+            try self.eventStoring.commit()
         }
     }
 
@@ -191,13 +209,13 @@ class ReminderCache {
         var didMutate = false
         for hash in hashes {
             if let reminder = reminders[hash] {
-                try self.eventStore.remove(reminder, commit:false)
+                try self.eventStoring.remove(reminder, commit:false)
                 self.reminders[hash] = nil
                 didMutate = true
             }
         }
         if didMutate {
-            try self.eventStore.commit()
+            try self.eventStoring.commit()
         }
     }
 
@@ -210,7 +228,7 @@ class ReminderCache {
             }
         }
         if didMutate {
-            try self.eventStore.commit()
+            try self.eventStoring.commit()
         }
     }
     
