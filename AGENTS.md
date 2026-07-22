@@ -54,19 +54,23 @@ Source files under `Sources/t/`:
   `predicateForCompletedReminders`), each fetched through an async continuation wrapper around
   EventKit's completion-handler API. Also defines `ReminderDict` quadrant accessors
   (`uiItems`/`nuiItems`/`uniItems`/`nuniItems`) that filter by the priority→quadrant grouping.
-- `EisenhowerConsoleView.swift` — pure rendering. Holds `priority_map` (name/digit → 0–9), computes
-  column widths from terminal size (`ioctl`/`TIOCGWINSZ`, fallback 80) and longest titles, sorts
-  each quadrant by completion-then-priority, and draws the matrix with Unicode box-drawing chars
-  and ANSI 256-color escape codes.
+- `Priority.swift` — the `Priority` enum (0–9); single source of truth for the priority→quadrant
+  mapping, and for parsing a name or digit into a priority (`Priority(name:)`).
+- `EisenhowerConsoleView.swift` — pure rendering. Computes column widths from terminal size
+  (`ioctl`/`TIOCGWINSZ`, fallback 80) and longest titles per quadrant (via `Priority(rawValue:)`),
+  sorts each quadrant by completion-then-priority, and draws the matrix with Unicode box-drawing
+  chars and ANSI 256-color escape codes.
 - `extensions.swift` — `EKReminder` helpers: `key` (3-char prefix of `calendarItemIdentifier`,
   the user-facing hash) and `completedToday`; plus `NSDate` `==`/`<` operators.
 
 ### Priority ⇒ quadrant mapping (the core domain model)
 
 Priorities 0–9 encode both *which quadrant* a reminder lands in and *its sort order within* the
-quadrant. This mapping is duplicated in three places — keep them in sync when changing it:
-`ReminderCache.swift` quadrant accessors, `EisenhowerConsoleView.priority_map`, and the tables in
-`main.swift`'s `usage()` and `README.md`.
+quadrant. `Priority.swift` is the single source of truth for this mapping in code —
+`ReminderCache.swift`'s quadrant accessors and `EisenhowerConsoleView.swift` both derive it via
+`Priority(rawValue:).quadrant`. The mapping is still duplicated as human-facing documentation,
+though: the tables printed by `main.swift`'s `usage()` and the one in `README.md` — keep those two
+in sync by hand when changing it.
 
 - 1,2,3 → top-left    (urgent & important — "DO")
 - 4,5,6 → top-right   (not urgent & important — "PLAN")
