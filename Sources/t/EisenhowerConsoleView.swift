@@ -7,31 +7,8 @@ public class EisenhowerConsoleView {
 	var leftcols:  Int      // final width of the left column (considering lengths of all left items)
 	var rightcols: Int      // final width of the right column
     
-    // Note: these ...MaxWidth properties probably don't benefit from the lazy
-    // keyword.  They are each executed exactly once for each execution,
-    // and they aren't particularly slow.  User wouldn't notice.
-    lazy var leftMaxWidth: Int = {
-        let longestLeftTitle = remCache.reminders.values
-            .filter { reminder in
-                let quadrant = Priority(rawValue: reminder.priority)?.quadrant
-                return quadrant == .urgentImportant || quadrant == .urgentNotImportant
-            }
-            .map { $0.title.count }
-            .max() ?? 0
-        let result = longestLeftTitle + 13
-        return result
-    }()
-    lazy var rightMaxWidth: Int = {
-        let longestRightTitle = remCache.reminders.values
-            .filter { reminder in
-                let quadrant = Priority(rawValue: reminder.priority)?.quadrant
-                return quadrant == .notUrgentImportant || quadrant == .notUrgentNotImportant
-            }
-            .map { $0.title.count }
-            .max() ?? 0
-        let result = longestRightTitle + 13
-        return result
-    }()
+    let leftMaxWidth: Int
+    let rightMaxWidth: Int
     var remCache: ReminderCache
 
     // Priority values specify which quadrant the item appears in
@@ -55,6 +32,24 @@ public class EisenhowerConsoleView {
         self.leftcols = Int(Double(self.cols) * 0.5)
 		self.rightcols = Int(self.cols) - self.leftcols
         self.remCache = reminders
+
+        let longestLeftTitle = remCache.reminders.values
+            .filter { reminder in
+                let quadrant = Priority(rawValue: reminder.priority)?.quadrant
+                return quadrant == .urgentImportant || quadrant == .urgentNotImportant
+            }
+            .map { $0.title.count }
+            .max() ?? 0
+        self.leftMaxWidth = longestLeftTitle + 13
+
+        let longestRightTitle = remCache.reminders.values
+            .filter { reminder in
+                let quadrant = Priority(rawValue: reminder.priority)?.quadrant
+                return quadrant == .notUrgentImportant || quadrant == .notUrgentNotImportant
+            }
+            .map { $0.title.count }
+            .max() ?? 0
+        self.rightMaxWidth = longestRightTitle + 13
 	}
 
     /**
