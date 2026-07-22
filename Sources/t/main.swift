@@ -1,57 +1,59 @@
 import EventKit
 
-func usage() {
-	print("# usage: t [<command> <options>]")
-	print("#")
-	print("# List or modify reminders on the default calendar")
-	print("# Reminders are displayed in a four quadrant Eisenhower (urgent/important) matrix")
-	print("# see: https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method")
-	print("#")
-	print("# Run the tool with no arguments to list the current reminders.")
-	print("# Each reminder shows up with a 3 hex-digit hash that is used to reference it.")
-	print("# For example:")
-	print("# ╭───────────────────────────┬─────────────────────────────────────╮")
-	print("# │    9D2 1 ride bike        │                                     │")
-	print("# │    CA8 2 Plan dinner date │                                     │")
-	print("# ├───────────────────────────┼─────────────────────────────────────┤")
-	print("# │                           │    C08 0 Download new IDA Pro       │")
-	print("# │                           │    AA0 0 Change Netflix password    │")
-	print("# │                           │    C8A 0 Reschedule eye exam        │")
-	print("# │                           │    E48 0 Fix outdoor light timers   │")
-	print("# │                           │ ✔  D33 0 cancel slack pro account   │")
-	print("# ╰───────────────────────────┴─────────────────────────────────────╯")
-	print("#")
-	print("# Examples:  ($ is the shell prompt)")
-	print("#   $ t ui Change Netflix password     # adds an urgent, important reminder to change your password")
-	print("#")
-	print("# The 'ui' string is a priority for the reminder, which determines which quadrant it appears in,")
-	print("# and the sorting in the quadrant, like this:")
-	print("#      uih (1)   |    nuih (4) ")
-	print("#      ui  (2)   |    nui  (5) ")
-	print("#      uil (3)   |    nuil (6) ")
-	print("#      ----------------------- ")
- 	print("#      uih (7)   |             ")
- 	print("#      ui  (8)   |    nuni (0) ")
-	print("#      uil (9)   |             ") 
-	print("#")
-	print("# Available priorities are: ")
-	print("#    uih   - priority 1: urgent & important (high)       [DO these tasks!]")
-	print("#    ui    - priority 2: urgent & important (normal)     [DO these tasks]")
-	print("#    uil   - priority 3: urgent & important (low)        [DO these tasks]")
-	print("#    nuih  - priority 4: not urgent & important (high)   [PLAN these tasks]")
-	print("#    nui   - priority 5: not urgent & important (normal) [PLAN these tasks]")
-	print("#    nuil  - priority 6: not urgent & important (low)    [PLAN these tasks]")
-	print("#    unih  - priority 7: urgent & not important (high)   [DELEGATE these tasks]")
-	print("#    uni   - priority 8: urgent & not important (normal) [DELEGATE these tasks]")
-	print("#    unil  - priority 9: urgent &  not important (low)   [DELEGATE these tasks]")
-	print("#    nuni  - priority 0: not urgent & not important.     [ELIMINATE these tasks]")
-	print("#")
-	print("#   Note:  you can also use the number priorities on the command line, e.g.")
-	print("#   $ t 1 Change Netflix password     # adds an urgent, important reminder to change your password")
-	print("#")
-	print("# $> t c 9d2        # marks the reminder with hash 9d2 as completed")
-	print("# $> t d 9d2        # deletes the reminder with hash 9d2")
-	print("# $> t m uni a28    # moves the reminder with hash a28 to priority uni")
+func usage() -> String {
+    return [
+        "# usage: t [<command> <options>]",
+        "#",
+        "# List or modify reminders on the default calendar",
+        "# Reminders are displayed in a four quadrant Eisenhower (urgent/important) matrix",
+        "# see: https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method",
+        "#",
+        "# Run the tool with no arguments to list the current reminders.",
+        "# Each reminder shows up with a 3 hex-digit hash that is used to reference it.",
+        "# For example:",
+        "# ╭───────────────────────────┬─────────────────────────────────────╮",
+        "# │    9D2 1 ride bike        │                                     │",
+        "# │    CA8 2 Plan dinner date │                                     │",
+        "# ├───────────────────────────┼─────────────────────────────────────┤",
+        "# │                           │    C08 0 Download new IDA Pro       │",
+        "# │                           │    AA0 0 Change Netflix password    │",
+        "# │                           │    C8A 0 Reschedule eye exam        │",
+        "# │                           │    E48 0 Fix outdoor light timers   │",
+        "# │                           │ ✔  D33 0 cancel slack pro account   │",
+        "# ╰───────────────────────────┴─────────────────────────────────────╯",
+        "#",
+        "# Examples:  ($ is the shell prompt)",
+        "#   $ t ui Change Netflix password     # adds an urgent, important reminder to change your password",
+        "#",
+        "# The 'ui' string is a priority for the reminder, which determines which quadrant it appears in,",
+        "# and the sorting in the quadrant, like this:",
+        "#      uih (1)   |    nuih (4) ",
+        "#      ui  (2)   |    nui  (5) ",
+        "#      uil (3)   |    nuil (6) ",
+        "#      ----------------------- ",
+        "#      uih (7)   |             ",
+        "#      ui  (8)   |    nuni (0) ",
+        "#      uil (9)   |             ",
+        "#",
+        "# Available priorities are: ",
+        "#    uih   - priority 1: urgent & important (high)       [DO these tasks!]",
+        "#    ui    - priority 2: urgent & important (normal)     [DO these tasks]",
+        "#    uil   - priority 3: urgent & important (low)        [DO these tasks]",
+        "#    nuih  - priority 4: not urgent & important (high)   [PLAN these tasks]",
+        "#    nui   - priority 5: not urgent & important (normal) [PLAN these tasks]",
+        "#    nuil  - priority 6: not urgent & important (low)    [PLAN these tasks]",
+        "#    unih  - priority 7: urgent & not important (high)   [DELEGATE these tasks]",
+        "#    uni   - priority 8: urgent & not important (normal) [DELEGATE these tasks]",
+        "#    unil  - priority 9: urgent &  not important (low)   [DELEGATE these tasks]",
+        "#    nuni  - priority 0: not urgent & not important.     [ELIMINATE these tasks]",
+        "#",
+        "#   Note:  you can also use the number priorities on the command line, e.g.",
+        "#   $ t 1 Change Netflix password     # adds an urgent, important reminder to change your password",
+        "#",
+        "# $> t c 9d2        # marks the reminder with hash 9d2 as completed",
+        "# $> t d 9d2        # deletes the reminder with hash 9d2",
+        "# $> t m uni a28    # moves the reminder with hash a28 to priority uni",
+    ].joined(separator: "\n")
 }
 
 /// What `runCommand(args:cache:)` decided the top-level driver should do next. Distinct from a
@@ -129,7 +131,7 @@ do {
 
     switch action {
     case .showUsage:
-        usage()
+        print(usage())
         exit(EXIT_SUCCESS)
     case .render:
         let view = EisenhowerConsoleView(reminders: remCache)
