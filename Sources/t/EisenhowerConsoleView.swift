@@ -3,9 +3,9 @@ import Darwin
 
 
 public class EisenhowerConsoleView {
-	var cols: Int           // total columns we have to work with.
-	var leftcols:  Int      // final width of the left column (considering lengths of all left items)
-	var rightcols: Int      // final width of the right column
+    var cols: Int           // total columns we have to work with.
+    var leftcols:  Int      // final width of the left column (considering lengths of all left items)
+    var rightcols: Int      // final width of the right column
     
     let leftMaxWidth: Int
     let rightMaxWidth: Int
@@ -22,7 +22,7 @@ public class EisenhowerConsoleView {
     //     ui  (8)   |    nuni (0)
     //     uil (9)   |
 
-	init(reminders: ReminderCache) {
+    init(reminders: ReminderCache) {
         var w = winsize()
         if ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 {
             self.cols = Int(w.ws_col)
@@ -30,7 +30,7 @@ public class EisenhowerConsoleView {
             self.cols = 80
         }
         self.leftcols = Int(Double(self.cols) * 0.5)
-		self.rightcols = Int(self.cols) - self.leftcols
+        self.rightcols = Int(self.cols) - self.leftcols
         self.remCache = reminders
 
         let longestLeftTitle = remCache.reminders.values
@@ -50,7 +50,7 @@ public class EisenhowerConsoleView {
             .map { $0.title.count }
             .max() ?? 0
         self.rightMaxWidth = longestRightTitle + 13
-	}
+    }
 
     /**
      Build the text for a single reminder, including padding
@@ -92,7 +92,7 @@ public class EisenhowerConsoleView {
         }
     }
 
-	/**
+    /**
      Print one half of the table (top or bottom)
      This just takes care of the reminder lines themselves.   The horizontal dividers
      are printed directly in display()
@@ -121,7 +121,7 @@ public class EisenhowerConsoleView {
     }
 
     // Given the four separate lists, dump them to the console.
-	func display() {
+    func display() {
         // Use box drawing characters to make a prettier border around the lists.
         // see https://en.wikipedia.org/wiki/Box-drawing_character
         leftcols  = max(leftMaxWidth,  leftcols)
@@ -137,18 +137,18 @@ public class EisenhowerConsoleView {
         
         print("\u{1B}[m")
         print("\u{256D}" + leftcolborder + "\u{252C}" + rightcolborder + "\u{256E}")
-	    self.list_reminders_side_by_side(
+        self.list_reminders_side_by_side(
             list1: self.remCache.reminders.uiItems,
             list2: self.remCache.reminders.nuiItems,
             width1:self.leftcols,
             width2:self.rightcols)
-	    print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
-	    self.list_reminders_side_by_side(
+        print("\u{251C}" + leftcolborder + "\u{253C}" + rightcolborder + "\u{2524}")
+        self.list_reminders_side_by_side(
             list1: self.remCache.reminders.uniItems,
             list2:self.remCache.reminders.nuniItems,
             width1:self.leftcols,
             width2:self.rightcols)
-	    print("\u{2570}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{256F}")
+        print("\u{2570}" + leftcolborder + "\u{2534}" + rightcolborder + "\u{256F}")
 
     }
 }
