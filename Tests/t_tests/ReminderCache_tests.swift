@@ -174,6 +174,54 @@ final class ReminderCache_tests: XCTestCase {
         }
     }
 
+    // MARK: - updateReminder / addReminder happy path (via FakeEventStore)
+
+    func testAddReminder_validTitle_savesWithCommitTrue() throws {
+        let fake = FakeEventStore()
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake)
+
+        try cache.addReminder(title: "buy milk", priority: 2)
+
+        XCTAssertEqual(fake.savedReminders.count, 1)
+        XCTAssertEqual(fake.savedReminders.first?.commit, true)
+        XCTAssertEqual(fake.savedReminders.first?.reminder.title, "buy milk")
+        XCTAssertEqual(fake.savedReminders.first?.reminder.priority, 2)
+        XCTAssertEqual(cache.reminders.count, 1)
+    }
+
+    func testUpdateReminder_defaultCommit_savesWithCommitTrue() throws {
+        let fake = FakeEventStore()
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake)
+        let rem = reminder(priority: 1)
+
+        try cache.updateReminder(reminder: rem, priority: 5)
+
+        XCTAssertEqual(rem.priority, 5)
+        XCTAssertEqual(fake.savedReminders.count, 1)
+        XCTAssertEqual(fake.savedReminders.first?.commit, true)
+        XCTAssertTrue(cache.reminders[rem.key] === rem)
+    }
+
+    func testUpdateReminder_explicitCommitFalse_doesNotCommit() throws {
+        let fake = FakeEventStore()
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake)
+        let rem = reminder(priority: 1)
+
+        try cache.updateReminder(reminder: rem, isCompleted: true, commit: false)
+
+        XCTAssertEqual(fake.savedReminders.first?.commit, false)
+        XCTAssertEqual(fake.commitCount, 0)
+    }
+
+    func testUpdateReminder_saveThrows_propagatesError() throws {
+        struct TestError: Error {}
+        let fake = FakeEventStore()
+        fake.saveError = TestError()
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake)
+
+        XCTAssertThrowsError(try cache.updateReminder(reminder: reminder(priority: 1), priority: 3))
+    }
+
     // MARK: - ReminderDict.build(from:) collision handling
 
     func testBuild_noCollisions_keepsEveryReminder() throws {
@@ -228,6 +276,108 @@ final class ReminderCache_tests: XCTestCase {
 
         XCTAssertEqual(cache.reminders.count, 1)
         XCTAssertEqual(cache.reminders["aaa"]?.isCompleted, false)
+    }
+
+    // MARK: - known-hash happy path + batched commit (via FakeEventStore, see #22)
+
+    func testMoveReminders_knownHash_updatesPriorityAndCommitsOnce() throws {
+        let fake = FakeEventStore()
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": known])
+
+        try cache.moveReminders(hashes: ["aaa"], priority: 7)
+
+        XCTAssertEqual(known.priority, 7)
+        XCTAssertEqual(fake.savedReminders.count, 1)
+        XCTAssertEqual(fake.savedReminders.first?.commit, false)   // save itself doesn't commit...
+        XCTAssertEqual(fake.commitCount, 1)                        // ...moveReminders commits once after the loop
+    }
+
+    func testMoveReminders_multipleKnownHashes_commitsExactlyOnce() throws {
+        let fake = FakeEventStore()
+        let a = reminder(priority: 1)
+        let b = reminder(priority: 2)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": a, "bbb": b])
+
+        try cache.moveReminders(hashes: ["aaa", "bbb"], priority: 9)
+
+        XCTAssertEqual(a.priority, 9)
+        XCTAssertEqual(b.priority, 9)
+        XCTAssertEqual(fake.savedReminders.count, 2)
+        XCTAssertEqual(fake.commitCount, 1)   // batched into a single commit, not one per hash
+    }
+
+    func testMoveReminders_mixOfKnownAndUnknownHashes_onlyMutatesKnownOnes() throws {
+        let fake = FakeEventStore()
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": known])
+
+        try cache.moveReminders(hashes: ["aaa", "zzz"], priority: 6)
+
+        XCTAssertEqual(known.priority, 6)
+        XCTAssertEqual(fake.savedReminders.count, 1)
+        XCTAssertEqual(fake.commitCount, 1)
+    }
+
+    func testMoveReminders_allUnknownHashes_neverCommits() throws {
+        let fake = FakeEventStore()
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake)
+
+        try cache.moveReminders(hashes: ["zzz"], priority: 5)
+
+        XCTAssertTrue(fake.savedReminders.isEmpty)
+        XCTAssertEqual(fake.commitCount, 0)
+    }
+
+    func testDeleteReminders_knownHash_removesFromCacheAndCommitsOnce() throws {
+        let fake = FakeEventStore()
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": known])
+
+        try cache.deleteReminders(hashes: ["aaa"])
+
+        XCTAssertNil(cache.reminders["aaa"])
+        XCTAssertEqual(fake.removedReminders.count, 1)
+        XCTAssertEqual(fake.removedReminders.first?.commit, false)
+        XCTAssertEqual(fake.commitCount, 1)
+    }
+
+    func testDeleteReminders_multipleKnownHashes_commitsExactlyOnce() throws {
+        let fake = FakeEventStore()
+        let a = reminder(priority: 1)
+        let b = reminder(priority: 2)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": a, "bbb": b])
+
+        try cache.deleteReminders(hashes: ["aaa", "bbb"])
+
+        XCTAssertTrue(cache.reminders.isEmpty)
+        XCTAssertEqual(fake.removedReminders.count, 2)
+        XCTAssertEqual(fake.commitCount, 1)
+    }
+
+    func testCompleteReminders_knownHash_marksCompletedAndCommitsOnce() throws {
+        let fake = FakeEventStore()
+        let known = reminder(priority: 1)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": known])
+
+        try cache.completeReminders(hashes: ["aaa"])
+
+        XCTAssertEqual(known.isCompleted, true)
+        XCTAssertEqual(fake.savedReminders.count, 1)
+        XCTAssertEqual(fake.commitCount, 1)
+    }
+
+    func testCompleteReminders_multipleKnownHashes_commitsExactlyOnce() throws {
+        let fake = FakeEventStore()
+        let a = reminder(priority: 1)
+        let b = reminder(priority: 2)
+        let cache = ReminderCache(eventStore: EKEventStore(), eventStoring: fake, reminders: ["aaa": a, "bbb": b])
+
+        try cache.completeReminders(hashes: ["aaa", "bbb"])
+
+        XCTAssertTrue(a.isCompleted)
+        XCTAssertTrue(b.isCompleted)
+        XCTAssertEqual(fake.commitCount, 1)
     }
 
 }
