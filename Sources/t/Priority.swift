@@ -34,12 +34,23 @@ enum Priority: Int, CaseIterable {
 
     /// Accepts either the case name ("ui", "nuih", ...) or the equivalent digit ("2", "4", ...).
     init?(name: String) {
-        if let byName = Priority.allCases.first(where: { "\($0)" == name }) {
-            self = byName
-        } else if let byNumber = Int(name), let byRaw = Priority(rawValue: byNumber) {
-            self = byRaw
-        } else {
-            return nil
+        switch name {
+        case "uih":  self = .uih
+        case "ui":   self = .ui
+        case "uil":  self = .uil
+        case "nuih": self = .nuih
+        case "nui":  self = .nui
+        case "nuil": self = .nuil
+        case "unih": self = .unih
+        case "uni":  self = .uni
+        case "unil": self = .unil
+        case "nuni": self = .nuni
+        default:
+            if let byNumber = Int(name), let byRaw = Priority(rawValue: byNumber) {
+                self = byRaw
+            } else {
+                return nil
+            }
         }
     }
 }
