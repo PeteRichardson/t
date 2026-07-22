@@ -54,6 +54,57 @@ func usage() {
 	print("# $> t m uni a28    # moves the reminder with hash a28 to priority uni")
 }
 
+/// What `runCommand(args:cache:)` decided the top-level driver should do next. Distinct from a
+/// thrown `RunError` since showing usage is a successful outcome, not a failure.
+enum RunAction: Equatable {
+    case showUsage
+    case render
+}
+
+/// Argument-validation failures from `runCommand(args:cache:)`. Thrown rather than
+/// printed-and-exited directly so the dispatch logic stays callable (and testable) without
+/// terminating the process.
+enum RunError: Error, Equatable {
+    case invalidArguments(String)
+}
+
+/// Parses `args` (program name already stripped) and dispatches to the matching `cache` mutator.
+/// This is the command-dispatch switch that used to live inline in this file's top-level code,
+/// where it couldn't be unit tested at all.
+func runCommand(args: [String], cache: ReminderCache) throws -> RunAction {
+    guard !args.isEmpty else {
+        return .render
+    }
+
+    let words = Array(args.dropFirst())
+    let command = args.first?.lowercased() ?? "unknown"
+
+    switch command {
+    case "h", "-h", "--help":
+        return .showUsage
+    case "c":
+        guard !words.isEmpty else {
+            throw RunError.invalidArguments("'c' requires at least one hash, e.g. t c a28")
+        }
+        try cache.completeReminders(hashes: words.map { $0.uppercased() })
+    case "d":
+        guard !words.isEmpty else {
+            throw RunError.invalidArguments("'d' requires at least one hash, e.g. t d a28")
+        }
+        try cache.deleteReminders(hashes: words.map { $0.uppercased() })
+    case "m":
+        guard let priorityArg = words.first,
+              let priority = Priority(name: priorityArg) else {
+            throw RunError.invalidArguments("'m' requires a valid priority and at least one hash, e.g. t m ui a28")
+        }
+        try cache.moveReminders(hashes: words.dropFirst().map { $0.uppercased() }, priority: priority.rawValue)
+    default:   // Can pass a priority name or number, e.g. "ui" or "2"; anything else defaults to priority 0
+        let title = words.joined(separator: " ")
+        try cache.addReminder(title: title, priority: Priority(name: command)?.rawValue ?? 0)
+    }
+    return .render
+}
+
 do {
     let remCache = await ReminderCache()    // load the reminders from the calendar
 
@@ -74,45 +125,22 @@ do {
         remCache.reminders = recognizedReminders
     }
 
-    var args = CommandLine.arguments
-    args.remove(at:0)
-    if args.count > 0 {
-    	let words = Array(args.dropFirst())
-        let command = args.first?.lowercased() ?? "unknown"
-        switch command {
-			case "h", "-h", "--help":
-				usage()
-				exit(EXIT_SUCCESS)
-	        case "c":
-				guard !words.isEmpty else {
-					print("# Error: 'c' requires at least one hash, e.g. t c a28")
-					exit(EXIT_FAILURE)
-				}
-                try remCache.completeReminders(hashes: words.map { $0.uppercased() })
-	        case "d":
-				guard !words.isEmpty else {
-					print("# Error: 'd' requires at least one hash, e.g. t d a28")
-					exit(EXIT_FAILURE)
-				}
-                try remCache.deleteReminders(  hashes: words.map { $0.uppercased() })
-	        case "m":
-				guard let priorityArg = words.first,
-				      let priority = Priority(name: priorityArg) else {
-					print("# Error: 'm' requires a valid priority and at least one hash, e.g. t m ui a28")
-					exit(EXIT_FAILURE)
-				}
-                try remCache.moveReminders(    hashes: words.dropFirst().map { $0.uppercased() }, priority: priority.rawValue)
-	        default:		// Can pass a priority name or number, e.g. "ui" or "2"; anything else defaults to priority 0
-                let title = words.joined(separator: " ")
-	            try remCache.addReminder (title: title, priority: Priority(name: command)?.rawValue ?? 0)
-        }
+    let action = try runCommand(args: Array(CommandLine.arguments.dropFirst()), cache: remCache)
+
+    switch action {
+    case .showUsage:
+        usage()
+        exit(EXIT_SUCCESS)
+    case .render:
+        let view = EisenhowerConsoleView(reminders: remCache)
+        view.display()
     }
-    
-	let view = EisenhowerConsoleView(reminders: remCache)
-	view.display()
 
 } catch ReminderCache.Error.EmptyTitleError {
     print("# Error: can't add reminder with empty title.")
+} catch RunError.invalidArguments(let message) {
+    print("# Error: \(message)")
+    exit(EXIT_FAILURE)
 } catch {
     print("# Something is wrong, \(error)")
 }
