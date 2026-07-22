@@ -15,6 +15,34 @@ final class main_tests: XCTestCase {
         return reminder
     }
 
+    // MARK: - usage()
+
+    func testUsage_containsHeaderAndExamples() throws {
+        let text = usage()
+
+        XCTAssertTrue(text.contains("usage: t [<command> <options>]"))
+        XCTAssertTrue(text.contains("t c 9d2"))
+        XCTAssertTrue(text.contains("t d 9d2"))
+        XCTAssertTrue(text.contains("t m uni a28"))
+    }
+
+    func testUsage_listsEveryPriorityNameAndDigit() throws {
+        let text = usage()
+
+        for priority in Priority.allCases {
+            XCTAssertTrue(text.contains("\(priority)"), "usage() should mention priority name \"\(priority)\"")
+            XCTAssertTrue(text.contains("priority \(priority.rawValue):"), "usage() should mention priority digit \(priority.rawValue)")
+        }
+    }
+
+    func testUsage_everyLineIsACommentOrBlank() throws {
+        let text = usage()
+
+        for line in text.split(separator: "\n", omittingEmptySubsequences: false) {
+            XCTAssertTrue(line.hasPrefix("#"), "expected every usage() line to start with \"#\", got: \(line)")
+        }
+    }
+
     // MARK: - no command
 
     func testRun_emptyArgs_returnsRender() throws {
